@@ -1,0 +1,117 @@
+.bar-container {
+  height: 0;
+  margin: auto;
+  user-select: none;
+  animation: disappear 5s cubic-bezier(0.3, 0, 1, 0);
+  overflow: hidden;
+}
+@keyframes disappear {
+  0%, 50% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0;
+  }
+  from {
+      height: auto;
+  }
+  to {
+      height: 0;
+  }
+}
+.bar-wrapper {
+  position: relative;
+  padding: 15px 15px 60px 15px;
+  border-radius: 3px;
+}
+.bar-wrapper.no-buttons {
+  padding-bottom: 15px;
+}
+.lightblue  {
+  color: #48B8F7;
+  background-color: #CFEEFF;
+  border: 1px solid #48B8F7;
+}
+.blue  {
+  color: white;
+  background: linear-gradient(320deg, #42D1FF 0%, #48B8F7 100%);
+  /*border: 1px solid #37ADF0;*/
+}
+.yellow  {
+  color: white;
+  background: linear-gradient(320deg, #FFD255 0%, #FAB800 100%);
+  /*border: 1px solid #E8A400;*/
+}
+.pink  {
+  color: white;
+  background: linear-gradient(320deg, rgb(255, 119, 200) 0%, rgb(255, 87, 188) 100%);
+  /*border: 1px solid rgb(232, 0, 131);*/
+}
+.title {
+  line-height: 21px;
+  font-size: 19px;
+}
+.description {
+  padding-top: 5px;
+  line-height: 21px;
+  font-size: 15px;
+}
+.buttons-wrapper {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 210px;
+  height: 30px;
+}
+.buttons-wrapper button {
+  width: calc(50% - 5px);
+  height: 100%;
+  line-height: 30px;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+.btn-action {
+  float: right;
+}
+.lightblue .btn-action {
+  border: 1px solid #48B8F7;
+}
+.blue .btn-action,
+.yellow .btn-action {
+  border: 1px solid white;
+}
+@media (min-width: 512px) {
+  .bar-wrapper {
+      padding: 20px 20px 80px 20px;
+  }
+  .bar-wrapper.no-buttons {
+      padding-bottom: 20px;
+  }
+  .buttons-wrapper {
+      bottom: 20px;
+      width: 290px;
+      height: 40px;
+  }
+  .buttons-wrapper button {
+      line-height: 40px;
+  }
+}
+@media (min-width: 992px) {
+  .bar-wrapper {
+      padding: 20px 320px 20px 20px;
+
+  }
+  .bar-wrapper.no-buttons {
+      padding-right: 20px;
+  }
+  .buttons-wrapper {
+      top: 50%;
+      right: 20px;
+
+      left: unset;
+      transform: translateY(-50%);
+  }
+}
+
+

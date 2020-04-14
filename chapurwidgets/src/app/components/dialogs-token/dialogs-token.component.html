@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>
+    <i class="fa fa-lock"></i> Notifacación</h2>
+
+
+  <!---->
+  <mat-dialog-content>
+    <p>El token de confirmación ha sido enviado al celular con terminación: {{ data['phone'] }}</p>
+    <hr>
+    <!--Pass actual-->
+    <div class="dialog-content">
+      <form [formGroup]="frmToken">
+        <mat-form-field class="full-width">
+          <input matInput type="text" placeholder="Ingrese su token" formControlName="token">
+        </mat-form-field>
+        <div *ngIf="frmToken.get('token').errors?.required && frmToken.get('token').touched" class="text-danger error-label">
+          <i class="fa fa-exclamation-circle"></i> El token es requerido.
+        </div>
+        <div *ngIf="frmToken.get('token').errors?.minLength && frmToken.get('token').touched" class="text-danger error-label">
+          <i class="fa fa-exclamation-circle"></i> El token no puede tener menos de 6 digitos.
+        </div>
+        <div *ngIf="frmToken.get('token').errors?.maxLength && frmToken.get('token').touched" class="text-danger error-label">
+          <i class="fa fa-exclamation-circle"></i> El token no puede tener mas de 6 digitos.
+        </div>
+      </form>
+      <hr>
+      <a class="full-width" href="javascript:void(0)" (click)="getToken()" > Reenviar Token</a>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <button [disabled]="!frmToken.valid" mat-raised-button color="primary" (click)="onCloseConfirm()">Confirmar</button>
+
+    <button mat-raised-button #btnRememberLater autofocus type="button" color="warn" (click)="onCloseCancel()">Cancelar</button>
+  </mat-dialog-actions>

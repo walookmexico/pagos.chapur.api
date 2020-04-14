@@ -1,0 +1,63 @@
+<app-navbar></app-navbar>
+<app-alertbar
+  *ngIf="loginFailed"
+  [type]="'yellow'"
+  [title]="'¡Error de autenticación!'"
+  [description]="alertMessages"
+  [noButtons]="true">
+</app-alertbar>
+
+<app-loader-process
+  [showLoading]="working">
+</app-loader-process>
+
+<!-- <div class="pen-title">
+    <h1>DASHBOARD PAGO EN LINEA</h1>
+  </div>
+-->
+<div class="container animated bounceInDown">
+    <div class="card"></div>
+    <div class="card">
+      <h1 class="title">INICIAR SESION</h1>
+      <form [formGroup]="frmSignin" (ngSubmit)="login()"  novalidate>
+        <div class="input-container">
+          <input
+              type="text"
+              name="username"
+              formControlName="username">
+          <label>Username</label>
+          <div class="bar"></div>
+
+        </div>
+        <div *ngIf="frmSignin.get('username').errors?.required && frmSignin.get('username').touched" class="text-danger error-label">
+          <i class="fa fa-exclamation-circle"></i> El campo usuario es requerido
+        </div>
+        <div class="input-container">
+          <input
+             type="password"
+             name="password"
+             formControlName="password">
+          <label>Password</label>
+          <div class="bar"></div>
+        </div>
+        <div *ngIf="frmSignin.get('password').errors?.required && frmSignin.get('password').touched" class="text-danger error-label">
+          <i class="fa fa-exclamation-circle"></i> El campo password es requerido
+        </div>
+        <div class="button-container">
+
+          <button
+            [disabled]="!frmSignin.valid"
+            [ngClass]="{'disabled': !frmSignin.valid}"
+            class="btn btn-outline-danger btn-lg btn-block"
+            type="submit">
+            ENTRAR
+          </button>
+
+        </div>
+        <div class="footer"><a [routerLink]="['/forgotpassword']" >¿Olvidaste tu contraseña?</a></div>
+      </form>
+    </div>
+    <div class="card alt">
+        <div class="toggle"> <i class="fa fa-chart-pie"></i> </div>
+    </div>
+  </div>

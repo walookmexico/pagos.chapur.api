@@ -1,0 +1,23 @@
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+*{
+  margin: 0px;
+  padding: 0px;
+}
+.container-fluid{
+  padding: 0px !important;
+}
+#wrap-error{
+  margin: 10px;
+  padding: 20px;
+  border:1px solid #cccccc;
+  background-color: #f1f1f1e7;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.md-width {
+  width: 30%;
+}

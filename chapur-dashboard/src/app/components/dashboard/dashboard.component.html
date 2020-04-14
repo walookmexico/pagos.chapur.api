@@ -1,0 +1,416 @@
+<app-navbar></app-navbar>
+
+<app-loader-process [showLoading]="working">
+</app-loader-process>
+
+<div class="container-fluid" id="wrap-dashboard">
+    <div class="row" id="cnt-filters">
+        <div class="col-md-12">
+            <form class="form-inline" (ngSubmit)="onFilter();" #frmFilters="ngForm">
+                <div class="form-group">
+
+                    <mat-form-field color="accent">
+                        <input matInput [matDatepicker]="picker" placeholder="Fecha Inicio" name="starDate" [(ngModel)]="starDate">
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+
+                </div>
+                <!-- /.form-group-->
+                <div class="form-group">
+                    <mat-form-field>
+                        <input matInput [matDatepicker]="pickerEnd" placeholder="Fecha termino" name="endDate" [(ngModel)]="endDate">
+                        <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+                        <mat-datepicker #pickerEnd></mat-datepicker>
+                    </mat-form-field>
+                </div>
+                <!-- /.form-group-->
+                <div class="form-group">
+                  <mat-form-field  [matTooltip]="toolTipPlatform">
+                      <mat-select placeholder="Plataformas"
+                      [(ngModel)]="platformId"
+                      (selectionChange)= "onChangePlatform($event)"
+                      name="platformId"
+                       multiple>
+                          <mat-option *ngFor="let plataform of plataforms" [value]="plataform.value">
+                              {{ plataform.viewValue }}
+                          </mat-option>
+                      </mat-select>
+                  </mat-form-field>
+              </div>
+              <!-- /.form-group-->
+                <div class="form-group">
+                    <mat-form-field  [matTooltip]="toolTipStore">
+                        <mat-select placeholder="Tiendas"
+                          [(ngModel)]="storeId"
+                          (selectionChange)="onChangeStore($event)"
+                          name="storeId"
+                          multiple
+
+                          #storeSelect>
+                            <mat-option *ngFor="let store of stores" [value]="store.value">
+                                {{ store.viewValue }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <!-- /.form-group-->
+
+                <button class="btn btn-outline-dark border-white ">
+            <i class="fa fa-filter"></i> Filtrar datos</button>
+
+                <button *ngIf="transansactions?.length"
+                        class="btn btn-outline-dark border-white mgl-10"
+                        type="button"
+                        (click)="exportTransactionsData();">
+                        <i class="fa fa-cloud-download-alt"></i> Descargar detalle
+                      </button>
+            </form>
+            <!-- /.form-inline-->
+        </div>
+        <!-- /.col-md-12-->
+    </div>
+    <!-- /#cnt-filters -->
+    <div class="row" id="cnt-sitemap">
+        <div class="col-md-10">
+            <span class="title">TABLERO DE PAGOS EN LÍNEA CON TARJETA CHAPUR</span>
+        </div>
+        <!-- /.col-md-6 -->
+        <div class="col-md-2">
+            <mat-slide-toggle class="float-right"
+                              [(ngModel)]="isModeDashboard"
+                              [checked]="isModeDashboard">Modo Dashboard</mat-slide-toggle>
+            <!-- /.nav -->
+        </div>
+        <!-- /.col-md-6 -->
+    </div>
+    <!-- /#cnt-sitemap -->
+
+    <div id="cnt-charts" *ngIf="isModeDashboard">
+        <div class="row">
+            <div class="col-md-4">
+                <!-- ./box-total -->
+                <div class="box-total animated fadeInLeft">
+                    <!-- ./box-total-info -->
+                    <div class="box-total-info">
+                        <h6>Monto Total</h6>
+                        <h4>{{ totalMoney | currency }}</h4>
+                        <!-- ./icn-circle -->
+                        <div class="icn-circle">
+                            <i class="fa fa-money-check-alt"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- .box-total -->
+                <div class="box-total mgt-10 animated fadeInLeft">
+                    <!-- .box-total-info -->
+                    <div class="box-total-info">
+                        <h6>Total de transacciones</h6>
+                        <h4>{{ totalTransaction }}</h4>
+                        <!-- .icn-circle -->
+                        <div class="icn-circle">
+                            <i class="fa fa-retweet"></i>
+                        </div>
+                        <!-- /.icn-circle -->
+                    </div>
+                    <!-- /.box-total-info -->
+                </div>
+                <!-- /.box-total -->
+            </div>
+            <!-- /.col-md-4 -->
+            <div class="col-md-4" [ngClass]="{'full-size animated fadeIn': expandChartPlatform }"  >
+                <div class="box-chart animated fadeInUp">
+                    <h6>MONTO POR PLATAFORMA</h6>
+                    <!-- chart -->
+                    <div id='chart-platform' class="box-cnt-canvas" *ngIf="dataPlatform.length">
+                        <canvas baseChart
+                          id="canvas-platform"
+                          [datasets]="PlatformBarChartData"
+                          [options]="PlatformBarChartOptions"
+                          [legend]="PlatformBarChartLegend"
+                          chartType ="bar">
+                        </canvas>
+                    </div>
+                    <div class="tools" *ngIf="PlatformBarChartData.length">
+                        <ul class="list-unstyled">
+                            <li *ngIf="!expandChartPlatform">
+                                <a href="javascript:void(0)"
+                                   (click)="onMaximizeChart('chart-platform')">
+                                    <i class="fa fa-expand-arrows-alt"></i>
+                                </a>
+                            </li>
+                            <li *ngIf="expandChartPlatform">
+                                <a href="javascript:void(0)"
+                                   (click)="onMinimizeChart('chart-platform')">
+                                    <i class="fa fa-times"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)"
+                                (click)="onOpenDialogPlatformDetail();">
+                                    <i class="fa fa-th"></i></a>
+                            </li>
+                            <li>
+                              <a id="lnk-download-platform" href="javascript:void(0)"
+                                (click)="exportChartToImage('canvas-platform','montos_por_plataforma')">
+                                <i class="fa fa-image"></i>
+                              </a>
+                              </li>
+                            <li>
+                                <li>
+                                    <a href="javascript:void(0)"
+                                      (click)="exportPlatformData(PlatformBarChartData);">
+                                      <i class="fa fa-download"></i>
+                                    </a>
+                                </li>
+                        </ul>
+                        <!-- /.list-unstyled -->
+                    </div>
+                    <!-- /.tools -->
+
+                    <div class="message-empty" *ngIf="!PlatformBarChartData.length">
+                        <i class="fa fa-chart-bar fa-2x"></i>
+                        <h5>Sin datos para gráficar</h5>
+                    </div>
+
+                </div>
+                <!-- /.box-chart -->
+            </div>
+            <!-- /.col-md-4 -->
+            <div class="col-md-4" [ngClass]="{'full-size animated fadeIn': expandChartStores }">
+              <div class="box-chart animated fadeInUp">
+                  <h6>MONTO POR TIENDA</h6>
+                  <!-- chart -->
+                  <div id='chart-store' class="box-cnt-canvas" *ngIf="storeBarChartData.length">
+                      <canvas
+                          baseChart
+                          id="canvas-store"
+                          [datasets]="storeBarChartData"
+                          [options]="StoreBarChartOptions"
+                          [legend]="StoreBarChartLegend"
+                          chartType="bar">
+                      </canvas>
+                  </div>
+                  <div class="tools" *ngIf="storeBarChartData.length">
+                      <ul class="list-unstyled">
+                          <li *ngIf="!expandChartStores">
+                              <a href="javascript:void(0)"
+                                 (click)="onMaximizeChart('chart-store')">
+                                  <i class="fa fa-expand-arrows-alt"></i>
+                              </a>
+                          </li>
+                          <li *ngIf="expandChartStores">
+                              <a href="javascript:void(0)"
+                                 (click)="onMinimizeChart('chart-store')">
+                                  <i class="fa fa-times"></i>
+                              </a>
+                          </li>
+                          <li>
+                              <a href="javascript:void(0)"
+                                  (click)="onOpenDialogStoreDetail();">
+                                  <i class="fa fa-th"></i>
+                              </a>
+                          </li>
+                          <li>
+                              <a href="javascript:void(0)"
+                                (click)="exportChartToImage('canvas-store','cantidad_por_tienda')" download>
+                                <i class="fa fa-image"></i>
+                              </a>
+                          </li>
+                          <li>
+                          <li>
+                            <a href="javascript:void(0)"
+                               (click)="exportStoreData(storeBarChartData);">
+                               <i class="fa fa-download"></i>
+                            </a>
+                          </li>
+                      </ul>
+                      <!-- /.list-unstyled -->
+                  </div>
+                  <!-- /.tools -->
+                  <div class="message-empty" *ngIf="!storeBarChartData.length">
+                      <i class="fa fa-chart-bar fa-2x"></i>
+                      <h5>Sin datos para gráficar</h5>
+                  </div>
+              </div>
+              <!-- /.box-chart -->
+          </div>
+          <!-- /.col-md-4 -->
+        </div>
+        <!-- /.row -->
+        <div class="row mgt-25">
+            <div class="col-md-8" [ngClass]="{'full-size animated fadeIn': expandChartQuantity }">
+                <div class="box-chart animated fadeInUp">
+                    <h6>MONTO POR FECHA</h6>
+                    <!-- chart -->
+                    <div id='chart-quantity' class="box-cnt-canvas" *ngIf="lineChartData.length">
+                        <canvas
+                          baseChart
+                          [datasets]="lineChartData"
+                          [labels]="lineChartLabels"
+                          [options]="lineChartOptions"
+                          [colors]="lineChartColors"
+                          [legend]="lineChartLegend"
+                          chartType="line">
+                      </canvas>
+                    </div>
+
+                    <div class="tools" *ngIf="lineChartData.length">
+                        <ul class="list-unstyled">
+                            <li *ngIf="!expandChartQuantity">
+                                <a href="javascript:void(0)"
+                                  (click)="onMaximizeChart('chart-quantity')">
+                                    <i class="fa fa-expand-arrows-alt"></i>
+                                </a>
+                            </li>
+                            <li *ngIf="expandChartQuantity">
+                                <a href="javascript:void(0)"
+                                   (click)="onMinimizeChart('chart-quantity')">
+                                   <i class="fa fa-times"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)"
+                                   (click)="onOpenDialogDayDetail();">
+                                    <i class="fa fa-th"></i>
+                                </a>
+                            </li>
+                            <li>
+                              <a href="javascript:void(0)"
+                                (click)="exportChartToImage('chart-quantity','monto_por_fechas')"
+                                download>
+                                <i class="fa fa-image"></i>
+                              </a>
+                            </li>
+                            <li>
+                              <li>
+                                <a href="javascript:void(0)"
+                                  (click)="exportDateDetailData(lineExcelData);">
+                                  <i class="fa fa-download"></i></a>
+                              </li>
+                            </ul>
+                          </div>
+                          <!-- /.tools -->
+
+                    <div class="message-empty" *ngIf="!lineChartData.length">
+                        <i class="fa fa-chart-line fa-2x"></i>
+                        <h5>Sin datos para gráficar</h5>
+                    </div>
+                </div>
+                <!-- /.box-chart -->
+            </div>
+            <!-- /.col-md-8 -->
+
+            <div class="col-md-4" [ngClass]="{'full-size animated fadeIn': expendChartStatus }">
+                <div class="box-chart animated fadeInUp">
+                    <h6>ESTATUS PIORPI DE TRANSACCIONES</h6>
+                    <div id="chart-status" class="box-cnt-canvas" *ngIf="doughnutChartData.length">
+                      <canvas
+                        baseChart
+                        id="canvas-status"
+                        [data]="doughnutChartData"
+                        [labels]="doughnutChartLabels"
+                        [options]="doughnutOptions"
+                        [colors] = "doughnutColors"
+                        chartType="doughnut">
+                      </canvas>
+                    </div>
+
+                    <div class="tools" *ngIf="doughnutChartData.length">
+                        <ul class="list-unstyled">
+                            <li *ngIf="!expendChartStatus">
+                                <a href="javascript:void(0)"
+                                  (click)="onMaximizeChart('chart-status')">
+                                    <i class="fa fa-expand-arrows-alt"></i>
+                                </a>
+                            </li>
+                            <li *ngIf="expendChartStatus">
+                                <a href="javascript:void(0)"
+                                   (click)="onMinimizeChart('chart-status')">
+                                    <i class="fa fa-times"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)"
+                                    (click)="onOpenDialogStatusDetail();">
+                                    <i class="fa fa-th"></i>
+                                </a>
+                            </li>
+                            <li>
+                              <a href="javascript:void(0)"
+                                 (click)="exportChartToImage('canvas-status','estatus_por_transacciones')"
+                                 download>
+                                 <i class="fa fa-image"></i>
+                              </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)"
+                                  (click)="exportStatusData();">
+                                   <i class="fa fa-download"></i>
+                                </a>
+                            </li>
+                        </ul>
+                        <!-- /.list-unstyled -->
+                    </div>
+                    <!-- /.tools -->
+
+                    <div class="message-empty" *ngIf="!doughnutChartData.length">
+                        <i class="fa fa-chart-pie fa-2x"></i>
+                        <h5>Sin datos para gráficar</h5>
+                    </div>
+                </div>
+                <!-- /.box-chart -->
+            </div>
+            <!-- /.col-md-4 -->
+        </div>
+        <!-- /.row -->
+    </div>
+
+    <div id="cnt-detail" class="animated fadeIn" *ngIf="!isModeDashboard">
+        <button mat-button
+          class="float-right mgb-10"
+          (click)="syncStatus();">
+          <i class="fa fa-history"></i> Sincronizar estatus
+        </button>
+
+        <div class="table-responsive cnt-table-detail">
+            <table class="table table-bordered table-striped table-hover  ">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">Estatus</th>
+                        <th class="text-center">Fecha de Compra</th>
+                        <th class="text-center">Total</th>
+                        <th class="text-center">No.Autorización</th>
+                        <th class="text-center">Orden de Compra</th>
+                        <th class="text-center">Operación de Caja</th>
+                        <th class="text-center">Fecha Actualización</th>
+                        <th class="text-center">Plataforma</th>
+                        <th class="text-center">Tienda</th>
+                        <th class="text-center">PIORPI</th>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let row of transansactions " [ngClass]="{'table-danger': row.statusPiorpi == 3, 'table-warning': row.statusPiorpi == 2 }" >
+                        <td>{{ row.statusTransaction | estatustransaccion }}</td>
+                        <td class="text-center" >{{ row.createDate | date:'short' }}</td>
+                        <td class="text-right" >{{ row.amount | currency }}</td>
+                        <td>{{ row.autorizationId }}</td>
+                        <td>{{ row.purchaseOrderId }}</td>
+                        <td *ngIf="row.autorizationId != null" >
+                          {{ row.cashOperationId == null ? 'PENDIENTE' : row.cashOperationId }}
+                        </td>
+                        <td class="text-center">{{ row.validationDate | date:'short' }}</td>
+                        <td>{{ row.decriptionPlatform }}</td>
+                        <td>{{ row.storeDescripcion }}</td>
+                        <td matTooltip="{{ row.detailPiorpi }}" matTooltipPosition="before">
+                          <i *ngIf="row.statusPiorpi == 2" class="fa fa-hourglass-half"></i>
+                          <i *ngIf="row.statusPiorpi == 3" class="fa fa-exclamation-triangle"></i>
+                          <b> {{ row.statusPiorpi | estatuspiorpi }}</b>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->

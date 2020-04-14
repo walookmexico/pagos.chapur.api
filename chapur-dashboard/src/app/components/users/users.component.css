@@ -1,0 +1,42 @@
+.example-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.example-full-width {
+  width: 100%;
+}
+
+:host ::ng-deep h4{
+  position: relative;
+  padding-left:10px;
+  margin-bottom: 20px;
+}
+
+:host ::ng-deep h4:before{
+  width: 4px;
+  height: 30px;
+  background-color: #DC3545;
+  content:' ';
+  position:absolute;
+  left: 0;
+
+}
+
+.form-control{
+  padding: 20px 50px;
+}
+
+.form-control button:first-child {
+  margin-left: 10px !important;
+}
+
+.mat-column-id{
+  flex: 0 0 50px !important;
+}
+
+.mat-column-edit{
+  flex: 0 0 120px !important;
+}
+

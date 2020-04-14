@@ -1,0 +1,15 @@
+<div class="cnt-dialog-content">
+  <h2 mat-dialog-title>
+    <i class="fa fa-ban"></i> Notificación
+  </h2>
+  <mat-dialog-content>
+    <strong>{{ data['message']}}</strong>
+    <hr>
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <div class="button-group">
+      <button mat-raised-button color="primary" (click)="onCloseConfirm()">Aceptar</button>
+    </div>
+  </mat-dialog-actions>
+</div>

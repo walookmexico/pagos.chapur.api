@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PagosGranChapur.Services", "PagosGranChapur.Services\PagosGranChapur.Services.csproj", "{F9974196-FA09-4908-A9E8-18258002C6E1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{19FD9DCC-5731-4C61-82E2-D908F9D9F9B3} = {19FD9DCC-5731-4C61-82E2-D908F9D9F9B3}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PagosGranChapur.Repositories", "PagosGranChapur.Repositories\PagosGranChapur.Repositories.csproj", "{19FD9DCC-5731-4C61-82E2-D908F9D9F9B3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FCEE108-CA66-4362-A103-0F6EDDB5F939} = {2FCEE108-CA66-4362-A103-0F6EDDB5F939}
+		{8F5D630D-0DB1-4258-B038-D1028CC016F6} = {8F5D630D-0DB1-4258-B038-D1028CC016F6}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PagosGranChapur.Entities", "PagosGranChapur.Entities\PagosGranChapur.Entities.csproj", "{8F5D630D-0DB1-4258-B038-D1028CC016F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PagosGranChapur.Data", "PagosGranChapur.Data\PagosGranChapur.Data.csproj", "{2FCEE108-CA66-4362-A103-0F6EDDB5F939}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PagosGranChapur.API", "PagosGranChapur.API\PagosGranChapur.API.csproj", "{C99F4A2E-08C7-46A7-96B4-6FC55228BB02}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F9974196-FA09-4908-A9E8-18258002C6E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9974196-FA09-4908-A9E8-18258002C6E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9974196-FA09-4908-A9E8-18258002C6E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9974196-FA09-4908-A9E8-18258002C6E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19FD9DCC-5731-4C61-82E2-D908F9D9F9B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19FD9DCC-5731-4C61-82E2-D908F9D9F9B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19FD9DCC-5731-4C61-82E2-D908F9D9F9B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19FD9DCC-5731-4C61-82E2-D908F9D9F9B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F5D630D-0DB1-4258-B038-D1028CC016F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F5D630D-0DB1-4258-B038-D1028CC016F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F5D630D-0DB1-4258-B038-D1028CC016F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F5D630D-0DB1-4258-B038-D1028CC016F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FCEE108-CA66-4362-A103-0F6EDDB5F939}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FCEE108-CA66-4362-A103-0F6EDDB5F939}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FCEE108-CA66-4362-A103-0F6EDDB5F939}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FCEE108-CA66-4362-A103-0F6EDDB5F939}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C99F4A2E-08C7-46A7-96B4-6FC55228BB02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C99F4A2E-08C7-46A7-96B4-6FC55228BB02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C99F4A2E-08C7-46A7-96B4-6FC55228BB02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C99F4A2E-08C7-46A7-96B4-6FC55228BB02}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {05923F39-E930-4AD0-803A-BDAB420FC7F6}
+	EndGlobalSection
+EndGlobal

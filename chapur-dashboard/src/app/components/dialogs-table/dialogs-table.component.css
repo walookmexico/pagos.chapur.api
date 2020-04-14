@@ -1,0 +1,17 @@
+h2{
+  position: relative;
+}
+
+h2::before {
+  position: absolute;
+  height: 35px;
+  left: -25px;
+  width: 8px;
+  top: -2px;
+  background-color: #DC3545;
+  content: '';
+}
+
+.large-table{
+  height: 500px;
+}

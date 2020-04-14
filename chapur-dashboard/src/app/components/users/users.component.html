@@ -1,0 +1,150 @@
+<app-navbar></app-navbar>
+
+<app-loader-process [showLoading]="working">
+</app-loader-process>
+
+
+<div class="container-fluid">
+    <!-- /#cnt-filters -->
+    <div class="row" id="cnt-sitemap">
+        <div class="col-md-6">
+            <span class="title">CATÁLOGO DE USUARIOS</span>
+        </div>
+        <!-- /.col-md-6 -->
+        <div class="col-md-6 ">
+            <ul class="nav justify-content-end">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Dashboard pago en línea /</a>
+                </li>
+                <!-- /.nav-item -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fa fa-users"></i> Usuaros registrados</a>
+                </li>
+                <!-- /.nav-item -->
+            </ul>
+            <!-- /.nav -->
+        </div>
+        <!-- /.col-md-6 -->
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-5 animated fadeInLeft">
+            <h4>Formulario </h4>
+
+            <form [formGroup]="frmUser" class="form-control" (ngSubmit)="onSubmit()" #form="ngForm">
+                <mat-form-field class="example-full-width">
+                    <input matInput placeholder="Nombre completo" formControlName="fullName">
+                    <input formControlName="userId" type="hidden">
+                </mat-form-field>
+                <div *ngIf="frmUser.get('fullName').errors?.required && frmUser.get('fullName')?.touched" class="text-danger error-label">
+                    <i class="fa fa-exclamation-circle"></i> El campo nombre completo es requerido
+                </div>
+
+                <mat-form-field class="example-full-width">
+                    <input matInput placeholder="Usuario" formControlName="userName">
+                </mat-form-field>
+                <div *ngIf="frmUser.get('userName').errors?.required && frmUser.get('userName')?.touched" class="text-danger error-label">
+                    <i class="fa fa-exclamation-circle"></i> El campo usuario es requerido
+                </div>
+                <div [hidden]="!closePassword">
+                    <mat-form-field class="example-full-width">
+                        <input type="password" matInput placeholder="Contraseña" formControlName="password">
+                    </mat-form-field>
+                    <div *ngIf="frmUser.get('password')?.errors?.required && frmUser.get('password')?.touched" class="text-danger error-label">
+                        <i class="fa fa-exclamation-circle"></i> El campo password es requerido
+                    </div>
+
+
+                    <mat-form-field class="example-full-width">
+                        <input type="password" matInput placeholder="Confirmar contraseña" formControlName="confirmPassword">
+                    </mat-form-field>
+                    <div *ngIf="frmUser.get('confirmPassword')?.errors?.required && frmUser.get('confirmPassword')?.touched" class="text-danger error-label">
+                        <i class="fa fa-exclamation-circle"></i> La confirmación del password es requerida
+                    </div>
+                    <div *ngIf="frmUser.get('confirmPassword')?.errors?.equalspassword && frmUser.get('confirmPassword')?.touched" class="text-danger error-label">
+                        <i class="fa fa-exclamation-circle"></i> No coinciden las contraseñas
+                    </div>
+                </div>
+
+                <mat-form-field class="example-full-width">
+                    <input type="email" matInput placeholder="Correo electrónico" formControlName="email">
+                </mat-form-field>
+                <div *ngIf="frmUser.get('email').errors?.required && frmUser.get('email')?.touched" class="text-danger error-label">
+                    <i class="fa fa-exclamation-circle"></i> El correo eectrónico es requerido
+                </div>
+
+                <mat-form-field class="example-full-width">
+                    <mat-select placeholder="Perfil de usuario" name="rolId" formControlName="rolId">
+                        <mat-option *ngFor="let rol of roles" [value]="rol.value">
+                            {{ rol.viewValue }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <div *ngIf="frmUser.get('rolId').errors?.required && frmUser.get('rolId')?.touched" class="text-danger error-label">
+                    <i class="fa fa-exclamation-circle"></i> El rol del usuario es requerido
+                </div>
+
+                <a href="javascript:void(0)" (click)="onCancel($event)" mat-raised-button color="warn" class="float-right">
+                    <i class="fa fa-times"></i> Cancelar </a>
+                <button mat-raised-button color="primary" class="float-right" [disabled]="!frmUser.valid">
+          <i class="fa fa-save"></i> Guardar</button>
+
+                <div class="clearfix"></div>
+            </form>
+
+        </div>
+        <div class="col-md-7 animated fadeInRight">
+            <h4>Total de usuarios: {{ dataSource?.length }} </h4>
+
+            <mat-table #table [dataSource]="dataSource">
+
+                <ng-container matColumnDef="id">
+                    <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
+                </ng-container>
+
+                <!-- Name Column -->
+                <ng-container matColumnDef="fullName">
+                    <mat-header-cell *matHeaderCellDef> Nombre completo </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.fullName}} </mat-cell>
+                </ng-container>
+
+                <!-- Weight Column -->
+                <ng-container matColumnDef="userName">
+                    <mat-header-cell *matHeaderCellDef> Usuario </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.userName}} </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="edit" >
+                    <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+                    <mat-cell  *matCellDef="let element" (click)="$event.stopPropagation()">
+                        <button matTooltip="Editar datos del usuario" matTooltipPosition="before" mat-icon-button color="primary" (click)="onEdit(element);">
+              <mat-icon aria-label="Editar datos del usuario">
+                <i class="fa fa-edit"></i>
+              </mat-icon>
+            </button>
+                        <button matTooltip="Eliminar usuario" matTooltipPosition="before" mat-icon-button color="primary" (click)="onDelete(element);">
+              <mat-icon aria-label="Eliminar usuario">
+                <i class="fa fa-times-circle"></i>
+              </mat-icon>
+            </button>
+                    </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+            </mat-table>
+
+            <mat-paginator #paginator
+                          [pageSize]="5"
+                          [pageSizeOptions]="[5, 10, 20]"
+                          [showFirstLastButtons]="true">
+            </mat-paginator>
+
+        </div>
+
+    </div>
+
+</div>

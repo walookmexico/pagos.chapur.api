@@ -1,0 +1,53 @@
+
+.nav-dashboard{
+  color: #ffffff;
+
+}
+
+.nav-dashboard .user-info{
+  display: inline-block;
+  margin-right: 10px;
+  position: relative;
+  padding-right: 45px;
+  margin-top: -10px;
+}
+
+.nav-dashboard .user-info::after{
+  font-family: 'Font Awesome 5 Free';
+  border: 2px solid #ffffff;
+  content: "\f007";
+  position: absolute;
+  right: 0;
+  top: 0px;
+  font-size: 18px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 32px;
+  vertical-align: middle;
+}
+
+.nav-dashboard .user-info span{
+  font-size: 12px;
+  text-align: right;
+
+}
+:host ::ng-deep .nav-dashboard .user-info span small{
+  display: block;
+  line-height: 5px;
+}
+
+:host ::ng-deep .nav-dashboard .dropdown a.button{
+  color: #ffffff;
+  text-decoration: none;
+}
+
+:host ::ng-deep .nav-dashboard .dropleft::after{
+  content: '';
+}
+
+:host ::ng-deep .nav-dashboard .dropdown-item.active,
+:host ::ng-deep .nav-dashboard .dropdown-item:active{
+  background-color: #DC3545 !important;
+}

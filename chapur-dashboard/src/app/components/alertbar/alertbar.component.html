@@ -1,0 +1,10 @@
+<div class="bar-container" [ngClass]="type" *ngIf="type">
+  <div class="bar-wrapper container" [ngClass]="noButtons ? 'no-buttons' : ''">
+    <div class="title">{{title}}</div>
+    <div class="description">{{description}}</div>
+    <div class="buttons-wrapper" *ngIf="!noButtons">
+      <button mat-button class="btn-dismiss" *ngIf="dismissButton" (click)="dismissClicked.emit()">DISMISS</button>
+      <button mat-button class="btn-action" *ngIf="actionButton" (click)="actionClicked.emit()">ACTION</button>
+    </div>
+  </div>
+</div>

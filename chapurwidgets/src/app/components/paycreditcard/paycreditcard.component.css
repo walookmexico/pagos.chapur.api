@@ -1,0 +1,502 @@
+/*--------------------
+Buttons
+--------------------*/
+.btn {
+  display: block;
+  background: #bded7d;
+  color: white;
+  text-decoration: none;
+  margin: 20px 0;
+  padding: 15px 15px;
+  border-radius: 5px;
+  position: relative;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: all .2s ease-in-out;
+  box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0), 0 3px 3px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+.btn:hover::after {
+  background: rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0.2);
+}
+
+/*--------------------
+Form
+--------------------*/
+.form {
+  width: 370px;
+  float: left;
+  margin-right: 30px;
+}
+.form fieldset {
+  border: none;
+  padding: 5px 0;
+  position: relative;
+  clear: both;
+}
+.form fieldset:first-child {
+  padding-top: 20px;
+}
+.form fieldset.fieldset-expiration {
+  float: left;
+  width: 60%;
+}
+.form fieldset.fieldset-expiration .select {
+  width: 84px;
+  margin-right: 12px;
+  float: left;
+}
+.form fieldset.fieldset-ccv {
+  clear: none;
+  float: right;
+  width: 86px;
+}
+.form fieldset label {
+  display: block;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+.form fieldset input,
+.form fieldset .select {
+  width: 100%;
+  height: 38px;
+  color: #333333;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 18px;
+  outline: none !important;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
+  text-transform: uppercase;
+}
+.form fieldset input.input-cart-number,
+.form fieldset .select.input-cart-number {
+  width: 82px;
+  display: inline-block;
+  margin-right: 8px;
+}
+.form fieldset input.input-cart-number:last-child,
+.form fieldset .select.input-cart-number:last-child {
+  margin-right: 0;
+}
+.form fieldset input.input-cart-number{
+  text-align: center;
+}
+.form fieldset .select {
+  position: relative;
+}
+.form fieldset .select::after {
+  content: '';
+  border-top: 8px solid #222;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  position: absolute;
+  z-index: 2;
+  top: 14px;
+  right: 10px;
+  pointer-events: none;
+}
+.form fieldset .select select {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  position: absolute;
+  padding: 0px 0px 0px 10px;
+  border: none;
+  width: 100%;
+  outline: none !important;
+  top: 4px;
+  left: 0px;
+  background: none;
+}
+.form fieldset .select select :-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 #000;
+}
+
+
+.form div.button {
+  font-family: 'Roboto',  sans-serif;
+  box-sizing:border-box;
+  width:100%;
+  display:-webkit-box;
+  display:-moz-box;
+  display:-ms-flexbox;
+  display:-webkit-flex;
+  display:flex;
+  -webkit-flex-flow:row wrap;
+  -ms-flex-flow:row wrap;
+  flex-flow:row wrap;
+  -webkit-box-pack:justify;
+  -webkit-justify-content:space-between;
+  -ms-flex-pack:justify;
+  justify-content:space-between;
+  -webkit-box-align:center;
+  -webkit-align-items:center;
+  -ms-flex-align:center;
+  align-items:center;
+  margin-top: 10px;
+}
+.form div.button a {
+  padding:1em 0.5em;
+  box-sizing:border-box;
+  width:100%;
+  color:white;
+  font-size:0.8em;
+  font-weight:300;
+  text-align:center
+}
+.form div.button a.full-width {
+  width: 100%;
+}
+.form div.button a.half {
+  width: 48%;
+}
+.form div.button a {
+  display:inline-block;
+  vertical-align:middle;
+  -webkit-transform:perspective(1px) translateZ(0);
+  transform:perspective(1px) translateZ(0);
+  box-shadow:0 0 1px transparent;
+  position:relative;
+  -webkit-transition-property:color;
+  transition-property:color;
+  -webkit-transition-duration:0.3s;
+  transition-duration:0.3s
+}
+.form div.button a::before {
+  content:"";
+  position:absolute;
+  z-index:-1;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+  background-color:#111;
+  -webkit-transform:scaleY(0);
+  transform:scaleY(0);
+  -webkit-transform-origin:50%;
+  transform-origin:50%;
+  -webkit-transition-property:transform;
+  transition-property:transform;
+  -webkit-transition-duration:0.3s;
+  transition-duration:0.3s;
+  -webkit-transition-timing-function:ease-out;
+  transition-timing-function:ease-out
+}
+.form div.button a:hover {
+  color:#fff;
+   text-decoration: none;
+}
+.form div.button a:hover::before {
+  -webkit-transform:scaleY(1);
+  transform:scaleY(1)
+}
+@media screen and (min-width: 600px) {
+  .form div.button div a {
+      font-size:0.7em
+  }
+}
+@media screen and (min-width: 1025px) {
+  .form div.button div a {
+      font-size:0.9em
+  }
+}
+
+.form div.button a.btn-red {
+  background-color:#d50924
+}
+.form div.button a.btn-gray {
+  background-color:dimgray
+}
+.form div.button a.disabled{
+  background-color:dimgray !important;
+  opacity: 0.3;
+}
+
+
+
+/*--------------------
+Checkout
+--------------------*/
+.checkout{
+  /*margin: 150px auto 30px; */
+  position: relative;
+  padding-left: 10px;
+  /*width: 460px; */
+  /*background: white;*/
+  /*border-radius: 15px;*/
+  /*box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);*/
+}
+
+/*--------------------
+Credit Card
+--------------------*/
+.credit-card-box {
+  /*-webkit-perspective: 1000;
+          perspective: 1000; */
+  width: 400px;
+  height: 280px;
+  float: left;
+  margin-top: 20px;
+  font-family: 'Roboto', sans-serif;
+  /* position: absolute; */
+  /* top: -112px; */
+  /* left: 50%; */
+  /* -webkit-transform: translateX(-50%);
+          transform: translateX(-50%);*/
+}
+.credit-card-box:hover .flip, .credit-card-box.hover .flip {
+  -webkit-transform: rotateY(180deg);
+          transform: rotateY(180deg);
+}
+.credit-card-box .front,
+.credit-card-box .back {
+  width: 400px;
+  height: 250px;
+  border-radius: 15px;
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+  position: absolute;
+  color: #fff;
+  top: 0;
+  left: 0;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+
+}
+
+.credit-card-box .credit-card-disabled .front,
+.credit-card-box .credit-card-disabled .back {
+  background: linear-gradient(-75deg, #646464, #959292) ;
+}
+
+.credit-card-box .credit-card-clasica .front,
+.credit-card-box .credit-card-clasica .back{
+  background: linear-gradient(-75deg, #CC1B31, #AD1F2D) ;
+}
+
+.credit-card-box .credit-card-clasica .front{
+  background-image: url('../../../assets/img/bg_credit_card_clasica.png');
+  background-position: top left;
+}
+
+.credit-card-box .credit-card-cree .front,
+.credit-card-box .credit-card-cree .back {
+  background: linear-gradient(-75deg, #037BC1, #0061AE) ;
+}
+
+.credit-card-box .credit-card-platinum .front,
+.credit-card-box .credit-card-platinum .back {
+  background: linear-gradient(-75deg, #3B3A3C, #000000) ;
+}
+
+.credit-card-box .credit-card-platinum .front{
+  background-image: url('../../../assets/img/bg_credit_card_platinum.png');
+  background-position: top left;
+}
+
+.credit-card-box .credit-card-cree .front::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: url("../../../assets/img/card_cree.png") no-repeat center;
+  background-size: cover;
+  opacity: 1;
+}
+.credit-card-box .flip {
+  transition: 0.6s;
+  -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
+  position: relative;
+}
+.credit-card-box .front .logo {
+  position: absolute;
+  top: -15px;
+  left: 30px;
+  width: 120px;
+}
+.credit-card-box .back .logo {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  width: 60px;
+}
+.credit-card-box .front .logo svg,
+.credit-card-box .back .logo svg {
+  width: 100%;
+  height: auto;
+  fill: #fff;
+}
+.credit-card-box .credit-card-cree .front .logo{
+  display: none;
+}
+.credit-card-box .front {
+  z-index: 2;
+  -webkit-transform: rotateY(0deg);
+          transform: rotateY(0deg);
+}
+.credit-card-box .back {
+  -webkit-transform: rotateY(180deg);
+          transform: rotateY(180deg);
+}
+.credit-card-box .back .logo {
+  top: 185px;
+}
+.credit-card-box .chip {
+  display: none;
+  position: absolute;
+  width: 60px;
+  height: 45px;
+  top: 25px;
+  right: 20px;
+  background: linear-gradient(135deg, #ddccf0 0%, #d1e9f5 44%, #f8ece7 100%);
+  border-radius: 8px;
+}
+.credit-card-box .chip::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  border: 4px solid rgba(128, 128, 128, 0.1);
+  width: 80%;
+  height: 70%;
+  border-radius: 5px;
+}
+.credit-card-box .strip {
+  background: linear-gradient(135deg, #404040, #1a1a1a);
+  position: absolute;
+  width: 100%;
+  height: 50px;
+  top: 30px;
+  left: 0;
+}
+.credit-card-box .number {
+  position: absolute;
+  margin: 0 auto;
+  top: 103px;
+  left: 19px;
+  font-size: 38px;
+}
+.credit-card-box label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-shadow: none;
+  text-transform: uppercase;
+  font-weight: normal;
+  opacity: 0.5;
+  display: block;
+  margin-bottom: 3px;
+}
+.credit-card-box .card-holder,
+.credit-card-box .card-expiration-date {
+  position: absolute;
+  margin: 0 auto;
+  top: 180px;
+  left: 19px;
+  font-size: 18px;
+  text-transform: uppercase;
+
+}
+.credit-card-box .card-expiration-date {
+  text-align: right;
+  left: auto;
+  right: 20px;
+}
+.credit-card-box .ccv {
+  height: 36px;
+  background: #fff;
+  width: 91%;
+  border-radius: 5px;
+  top: 110px;
+  left: 0;
+  right: 0;
+  position: absolute;
+  margin: 0 auto;
+  color: #000;
+  text-align: right;
+  padding: 10px;
+}
+.credit-card-box .ccv label {
+  margin: -25px 0 14px;
+  color: #fff;
+}
+
+a.disabled {
+    pointer-events: none;
+    cursor: default;
+ }
+
+ .input-token {
+   margin-left: 105px;
+   margin-top: 10px;
+   width: 160px !important;
+   font-size: 40px !important;
+   text-align: center !important;
+ }
+
+ .cnt-token{
+  margin-top: 20px;
+ }
+
+ .cnt-token a.lnk-button{
+   display: block;
+   text-align: center;
+   cursor: pointer;
+   font-size: 12px;
+   font-weight: bold;
+   margin-top: 5px;
+   margin-top: 10px;
+ }
+
+ .cnt-token a.lnk-button:hover{
+  text-decoration: underline;
+  color: #C31C30;
+}
+
+ .input-token::placeholder {
+  color: #cccccc;
+}
+
+.alert{
+  margin-bottom: 0.5rem !important;
+}
+
+.alert p {
+  font-size: 12px;
+  padding-left: 10px;
+  margin-top: -5px;
+  font-style: italic;
+}
+
+#cnt-success-messages{
+  width: 520px;
+  margin: 0 auto;
+}
+#cnt-success-messages i {
+  display: block;
+  text-align: center;
+}
+#cnt-success-messages table {
+  margin: auto;
+  width: 400px;
+}
+
+

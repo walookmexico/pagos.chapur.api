@@ -1,0 +1,241 @@
+<app-loader-process
+  [showLoading]="working">
+</app-loader-process>
+ <!-- Alert message -->
+
+<nav class="nav--checkout">
+    <div class="alert alert-danger" [hidden]="!showError">
+        <h6><i class="fa fa-exclamation"></i> Ocurrio un problema al realizar la compra</h6>
+        <p>{{ message }}</p>
+    </div>
+  <section class="nav--main">
+    <a class="checkout--logo" href="/">
+      <img src="../../../assets/img/logo.svg" alt="Chapur Logo">
+    </a>
+    <div class="nav--checkout-help">
+      <aside>
+        <p>
+          <!-- react-text: 1233 -->¿Necesitas ayuda?
+           <!-- /react-text -->
+          <a href="tel:5589952102">(55) 8995 2102</a>
+        </p>
+      </aside>
+    </div>
+  </section>
+
+</nav>
+<section class="cart" *ngIf="!isValidateParameters && !isvalidateDetail && !isvalidateDetailParameters">
+  <section class="cart--content">
+    <!-- Detalle del producto-->
+    <section class="cart--items">
+      <header>
+        <!-- react-text: 1020 -->
+        <!-- /react-text -->
+        <h3>En tu carrito:</h3>
+        <!-- react-text: 1022 -->
+        <!-- /react-text -->
+      </header>
+      <div>
+        <article *ngFor="let product of this.payDetail.lstProduct">
+          <picture>
+            <!-- <img src="https://www.reebok.mx/dis/dw/image/v2/AAJP_PRD/on/demandware.static/-/Sites-reebok-products/default/dw8b39b102/zoom/BD4620_01.jpg?sw=2000"
+                                alt="Tenis Reebok Royal Rally"> -->
+          </picture>
+          <header>
+            <h4>{{ product.description }}</h4>
+            <div [hidden]="product.model == ''">
+              <p>Modelo:</p>
+              <p> {{ product.model }} </p>
+            </div>
+            <div [hidden]="product.color == ''">
+              <p>Color:</p>
+              <p>{{ product.color }}</p>
+            </div>
+            <div [hidden]="product.size == ''">
+              <p>Talla:</p>
+              <p>{{ product.size}}</p>
+            </div>
+          </header>
+          <section>
+            <div>
+              <h5>Cantidad:</h5>
+              <div class="product--qty">
+                <p id="cantidad0">{{ product.quantity }}</p>
+              </div>
+            </div>
+            <div>
+              <h5>Precio:</h5>
+              <del style="display: none;">
+                <span class="cents"></span>
+              </del>
+              <p>
+                <!-- react-text: 1052 -->{{ product.price | currency:'CAD':'symbol-narrow':'2.2-2' }}
+                <!-- /react-text
+                <span class="cents">00</span> -->
+              </p>
+            </div>
+            <div>
+              <h5>Total:</h5>
+              <p>
+                <!-- react-text: 1057 -->{{ product.total | currency:'CAD':'symbol-narrow':'2.2-2' }}
+                <!-- /react-text
+                <span class="cents">00</span>-->
+              </p>
+            </div>
+          </section>
+        </article>
+      </div>
+      <section class="cart--summary">
+        <header>
+          <h3>Resumen de compra</h3>
+        </header>
+        <div>
+          <p>Subtotal:</p>
+          <p>
+            <!-- react-text: 1075 -->{{ payDetail.amount | currency:'CAD':'symbol-narrow':'2.2-2' }}
+            <!-- /react-text
+            <span class="cents">00</span>-->
+          </p>
+        </div>
+        <div>
+          <p>Costos de envío:</p>
+          <p>
+            <span>
+              <!-- react-text: 1081 -->Envío gratis
+              <!-- /react-text -->
+              <span class="cents"></span>
+            </span>
+          </p>
+        </div>
+        <div>
+          <p>
+            <b>TOTAL:</b>
+          </p>
+          <p>
+            <!-- react-text: 1087 -->{{ payDetail.amount | currency:'CAD':'symbol-narrow':'2.2-2' }}
+            <!-- /react-text
+            <span class="cents">00</span>-->
+          </p>
+        </div>
+        <aside>
+          <p>Envío gratis a partir de $899</p>
+        </aside>
+      </section>
+    </section>
+    <!-- Formulario de datos tarjeta -->
+    <aside class="cart--sidebar">
+      <section class="cart--coupon">
+        <header>
+          <h3>Tarjeta Gran Chapur</h3>
+        </header>
+        <form class="checkout--payment-card" name="payment"   style="display: block;" (ngSubmit)="onSubmit()" [formGroup]="frmTarget">
+          <aside class="checkout--ad"></aside>
+            <!-- Campo nombre del cliente -->
+            <mat-form-field class="full-width">
+              <input matInput type="text" placeholder="Titular de la tarjeta" formControlName="name" >
+            </mat-form-field>
+            <div *ngIf="frmTarget.get('name').hasError('required') && frmTarget.get('name').touched" class="text-danger error-label">
+              <i class="fa fa-exclamation-circle"></i> El campo Titular de la tarjeta es requerido
+            </div>
+            <!-- Campo número de tarjeta -->
+            <mat-form-field class="full-width">
+              <input matInput type="text" placeholder="Número de la tarjeta" formControlName="numberTarget" maxlength="16">
+            </mat-form-field>
+            <div *ngIf="frmTarget.get('numberTarget').hasError('required') && frmTarget.get('numberTarget').touched" class="text-danger error-label">
+              <i class="fa fa-exclamation-circle"></i> El campo Número de la tarjeta es requerido
+            </div>
+            <div *ngIf="frmTarget.get('numberTarget').hasError('maxlength')" class="text-danger error-label">
+              <i class="fa fa-exclamation-circle"></i> Número de caracteres excedido, máximo  16 caracteres
+            </div>
+            <div *ngIf="frmTarget.get('numberTarget').hasError('minlength')" class="text-danger error-label">
+              <i class="fa fa-exclamation-circle"></i> Número de tarjeta mínimo, 16 caracteres
+            </div>
+            <!-- Campo mes-->
+            <mat-form-field class="md-width">
+              <input matInput type="text" placeholder="Mes" formControlName="month" maxlength="2">
+            </mat-form-field>
+            <!-- Campo año-->
+            <mat-form-field class="md-width">
+              <input matInput type="text" placeholder="Año" formControlName="year" maxlength="2">
+            </mat-form-field>
+            <!-- Campo CVV-->
+            <mat-form-field class="md-width">
+              <input matInput type="password" placeholder="CVV" formControlName="cvv" maxlength="3">
+            </mat-form-field>
+            <div class="full-width">
+              <!-- Errores mes -->
+              <div *ngIf="frmTarget.get('month').hasError('required') && frmTarget.get('month').touched" class="text-danger error-label">
+                <i class="fa fa-exclamation-circle"></i> El campo Mes es requerido
+              </div>
+              <div *ngIf="frmTarget.get('month').hasError('maxlength')" class="text-danger error-label">
+                  <i class="fa fa-exclamation-circle"></i> Número de caracteres excedido, máximo  2 caracteres
+                </div>
+                <div *ngIf="frmTarget.get('month').hasError('minlength')" class="text-danger error-label">
+                  <i class="fa fa-exclamation-circle"></i> Número de tarjeta mínimo, 2 caracteres
+                </div>
+              <!-- Errores año -->
+              <div *ngIf="frmTarget.get('year').hasError('required') && frmTarget.get('year').touched" class="text-danger error-label">
+                <i class="fa fa-exclamation-circle"></i> El campo Año es requerido
+              </div>
+              <div *ngIf="frmTarget.get('year').hasError('maxlength')" class="text-danger error-label">
+                <i class="fa fa-exclamation-circle"></i> Número de caracteres excedido, máximo  2 caracteres
+              </div>
+              <div *ngIf="frmTarget.get('year').hasError('minlength')" class="text-danger error-label">
+                <i class="fa fa-exclamation-circle"></i> Número de tarjeta mínimo, 2 caracteres
+              </div>
+              <!-- Errores cvv -->
+              <div *ngIf="frmTarget.get('cvv').hasError('required') && frmTarget.get('cvv').touched" class="text-danger error-label">
+                <i class="fa fa-exclamation-circle"></i> El campo CVV es requerido
+              </div>
+              <div *ngIf="frmTarget.get('cvv').hasError('maxlength')" class="text-danger error-label">
+                <i class="fa fa-exclamation-circle"></i> Número de caracteres excedido, máximo  3 caracteres
+              </div>
+              <div *ngIf="frmTarget.get('cvv').hasError('minlength')" class="text-danger error-label">
+                <i class="fa fa-exclamation-circle"></i> Número de tarjeta mínimo, 3 caracteres
+              </div>
+            </div>
+        </form>
+      </section>
+      <section class="cart--buttons" >
+        <div >
+          <a [class.disabled]="!frmTarget.valid"  class="full-width btn-red" href="javascript:void(0)" (click)="onSubmit()" >Pagar Ahora</a>
+        </div>
+      </section>
+    </aside>
+    <div class="product--error"></div>
+  </section>
+</section>
+<div id="wrap-error" *ngIf="isValidateParameters ">
+  <h4 class="text-danger">
+    <i class="fa fa-exclamation-circle"></i>
+    Error al recibir los parámetros de entrada
+  </h4>
+    <ul class="list-group ">
+      <li class="list-group-item" *ngFor="let error of errors">
+        <i class="fa fa-times"></i> {{ error }}
+      </li>
+    </ul>
+  </div>
+<div id="wrap-error" *ngIf="isvalidateDetail">
+  <h4 class="text-danger">
+    <i class="fa fa-exclamation-circle"></i>
+    Error al recibir los parámetros del detalle de los productos
+  </h4>
+    <ul class="list-group ">
+      <li class="list-group-item" *ngFor="let error of errorsdetails">
+        <i class="fa fa-times"></i> {{ error }}
+      </li>
+    </ul>
+  </div>
+  <div id="wrap-error" *ngIf="isvalidateDetailParameters">
+  <h4 class="text-danger">
+    <i class="fa fa-exclamation-circle"></i>
+    Error en los parámetros del detalle
+  </h4>
+    <ul class="list-group ">
+      <li class="list-group-item" *ngFor="let error of errorsdetailsParameters">
+        <i class="fa fa-times"></i> {{ error }}
+      </li>
+    </ul>
+  </div>
+

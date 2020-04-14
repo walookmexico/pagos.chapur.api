@@ -1,0 +1,13 @@
+<div>
+  <h3 mat-dialog-title>{{ data['title'] }}</h3>
+  <hr>
+  <mat-dialog-content>
+    <strong>{{ data['message'] }}</strong>
+    <hr>
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <button mat-raised-button color="primary"  (click)="onCloseConfirm()">Confirmar</button>
+    <button *ngIf="data['showConfirm']" mat-raised-button color="warn" (click)="onCloseCancel()">Cancelar</button>
+  </mat-dialog-actions>
+</div>
