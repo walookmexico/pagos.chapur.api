@@ -3,6 +3,7 @@
 # compiled output
 /dist
 /dist-server
+/dist_prod
 /tmp
 /out-tsc
 

@@ -8,7 +8,7 @@ import { CatalogsService } from '../../services/catalogs.service';
 import { DialogsTableComponent } from '../dialogs-table/dialogs-table.component';
 import { DialogsAlertsComponent } from '../dialogs-alerts/dialogs-alerts.component';
 import { MatDialog } from '@angular/material';
-import { Angular5Csv } from 'angular5-csv/Angular5-csv';
+import { Angular5Csv } from 'angular5-csv/dist/Angular5-csv';
 import { TooltipPosition } from '@angular/material';
 
 import * as html2canvas from 'html2canvas';
@@ -141,15 +141,14 @@ export class DashboardComponent implements OnInit {
     this.working = true;
     this.storeId = [];
     this.platformId = [];
-    this.endDate = new Date(Date.now());
+    var nowDate = new Date();
+    this.endDate = new Date();
     this.starDate = new Date();
     this.isModeDashboard = true;
     // NG2 FIN OPCIONES BARRA Platform
-    this.starDate.setDate(this.endDate.getDate() - 7);
-    this.endDate.setDate(this.endDate.getDate() + 30);
-
+    this.starDate.setDate(nowDate.getDate() - 7);
+    this.endDate.setDate(nowDate.getDate() + 30);
     this.initConfigChart();
-
   }
 
   ngOnInit() {
@@ -274,7 +273,7 @@ export class DashboardComponent implements OnInit {
 
   onFilter() {
     if (this.starDate != null && this.endDate != null) {
-      if (this.starDate.getDate() <= this.endDate.getDate()) {
+      if (this.starDate.getTime() <= this.endDate.getTime()) {
           this.resetChartData();
           this.getData();
       } else {
