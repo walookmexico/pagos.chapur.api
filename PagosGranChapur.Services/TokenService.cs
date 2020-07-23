@@ -4,11 +4,7 @@ using PagosGranChapur.Entities.WebServerRequest;
 using PagosGranChapur.Entities.WebServerResponses;
 using PagosGranChapur.Services.Helpers;
 using System;
-using System.Diagnostics;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace PagosGranChapur.Services
 {

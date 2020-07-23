@@ -1,17 +1,17 @@
-﻿using System;
-using Microsoft.Owin;
-using Owin;
-using System.Web.Http;
-using PagosGranChapur.API.Auth;
-using System.Reflection;
-using Autofac;
+﻿using Autofac;
 using Autofac.Integration.WebApi;
+using Microsoft.Owin;
 using Microsoft.Owin.Security.OAuth;
-using PagosGranChapur.Data.Infrastructure;
-using PagosGranChapur.Services;
-using PagosGranChapur.Entities.Helpers;
+using Owin;
+using PagosGranChapur.API.Auth;
 using PagosGranChapur.Data;
+using PagosGranChapur.Data.Infrastructure;
+using PagosGranChapur.Entities.Helpers;
 using PagosGranChapur.Repositories;
+using PagosGranChapur.Services;
+using System;
+using System.Reflection;
+using System.Web.Http;
 
 [assembly: OwinStartup(typeof(PagosGranChapur.API.Startup))]
 namespace PagosGranChapur.API

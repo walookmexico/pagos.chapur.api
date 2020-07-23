@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PagosGranChapur.Entities.Base
+﻿namespace PagosGranChapur.Entities.Base
 {
     public interface IEntityBase
     {

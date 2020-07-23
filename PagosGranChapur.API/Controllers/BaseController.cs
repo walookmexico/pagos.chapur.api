@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Security.Claims;
-using System.Web.Http;
+﻿using System.Web.Http;
 
 namespace PagosGranChapur.API.Controllers
 {

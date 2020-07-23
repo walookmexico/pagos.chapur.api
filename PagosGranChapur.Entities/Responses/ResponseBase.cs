@@ -1,9 +1,4 @@
-﻿using PagosGranChapur.Entities.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PagosGranChapur.Entities.Responses
+﻿namespace PagosGranChapur.Entities.Responses
 {
     public class ResponseBase
     {       

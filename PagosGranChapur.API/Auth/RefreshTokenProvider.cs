@@ -2,10 +2,7 @@
 using Microsoft.Owin.Security.Infrastructure;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace PagosGranChapur.API.Auth
 {
@@ -44,7 +41,6 @@ namespace PagosGranChapur.API.Auth
         public async Task ReceiveAsync(AuthenticationTokenReceiveContext context)
         {
             AuthenticationTicket ticket;
-            string header = context.OwinContext.Request.Headers["Authorization"];
 
             if (_refreshTokens.TryRemove(context.Token, out ticket))
             {

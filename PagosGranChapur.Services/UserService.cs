@@ -219,7 +219,7 @@ namespace PagosGranChapur.Services
                 response.IsSuccess = true;
                 response.Messages  = "Listado de usuario obtenido d emanera exitosa";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 response.IsSuccess = false;
                 response.Messages  = "Error al obtener el listado de usuarios";
@@ -246,7 +246,7 @@ namespace PagosGranChapur.Services
                 response.IsSuccess = true;
                 response.Messages = "Listado de usuario obtenido d emanera exitosa";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 response.IsSuccess = false;
                 response.Messages = "Error al obtener el listado de usuarios";

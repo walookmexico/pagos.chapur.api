@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -43,11 +41,11 @@ namespace PagosGranChapur.Services.Helpers
                 }
                 
             }
-            catch (System.Net.Http.HttpRequestException e)
+            catch (HttpRequestException e)
             {
-                throw new System.Net.Http.HttpRequestException(e.Message);
+                throw new HttpRequestException(e.Message);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return default(TU);
             }
@@ -88,11 +86,11 @@ namespace PagosGranChapur.Services.Helpers
                     
                 }
             }
-            catch (System.Net.Http.HttpRequestException e)
+            catch (HttpRequestException e)
             {
-                throw new System.Net.Http.HttpRequestException(e.Message);
+                throw new HttpRequestException(e.Message);
             }
-            catch (Exception e)
+            catch (Exception)
             {                
 
                 return default(TU);

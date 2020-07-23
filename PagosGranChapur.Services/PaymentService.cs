@@ -1,21 +1,18 @@
 ﻿using PagosGranChapur.Data.Infrastructure;
 using PagosGranChapur.Entities;
+using PagosGranChapur.Entities.Enums;
 using PagosGranChapur.Entities.Request;
 using PagosGranChapur.Entities.Responses;
 using PagosGranChapur.Entities.WebServerRequest;
 using PagosGranChapur.Entities.WebServerResponses;
+using PagosGranChapur.Repositories;
 using PagosGranChapur.Services.Helpers;
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
 using System.Configuration;
-using PagosGranChapur.Repositories;
 using System.Globalization;
-using PagosGranChapur.Entities.Helpers;
-using PagosGranChapur.Entities.Enums;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PagosGranChapur.Services
 {
@@ -129,34 +126,42 @@ namespace PagosGranChapur.Services
                 var purchaseOrderResponse = await RequestService.Post<OrdenCompraRequest, PaymentWSResponse>(apiUrl, baseURL, dataService);
 
                 //VALIDAR LA RESPUESTA DEL SERVICIO
-                if (purchaseOrderResponse != null && purchaseOrderResponse.Estatus > 0)
+                if (purchaseOrderResponse != null)
                 {
-                    response           = await this.SaveTransaction(purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
-                    response.IsSuccess = true;
-                    response.Messages  = "Pago aplicado correctamente";
+                    if (purchaseOrderResponse.Estatus > 0)
+                    {
+                        response = await this.SaveTransaction(purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
+                        response.IsSuccess = true;
+                        response.Messages = "Pago aplicado correctamente";
 
-                    
-                    await this.AddCatalog(purchaseOrderResponse);
-                }
+
+                        await this.AddCatalog(purchaseOrderResponse);
+                    }
+                    else
+                    {
+                        response.Data = new PaymentWSResponse
+                        {
+                            Estatus = purchaseOrderResponse.Estatus.Value,
+                            Mensaje = purchaseOrderResponse.Mensaje,
+                        };
+                        response.IsSuccess = false;
+                        response.Messages = "Problemas al ejecutar el servicio de pago";
+
+                        await this.SaveLog(request, purchaseOrderResponse.Estatus.Value, purchaseOrderResponse.Mensaje);
+                    }
+                } 
                 else
                 {
-                    response.Data = new PaymentWSResponse
-                    {
-                        Estatus = purchaseOrderResponse.Estatus.Value,
-                        Mensaje = purchaseOrderResponse.Mensaje,
-                    };
                     response.IsSuccess = false;
-                    response.Messages = "Problemas al ejecutar el servicio de pago";
-
-                    await this.SaveLog(request, purchaseOrderResponse.Estatus.Value, purchaseOrderResponse.Mensaje);
-                }                
+                    response.Messages = "Error de conexión con tiendas CHAPUR.";
+                }
             }           
             catch (System.Net.Http.HttpRequestException exHttpRequest)  //EXCEPCIÓN DE CONEXIÓN CON EL SERVIDOR DE SERVICIOS DE CHAPUR
             {
                 await this.SaveLog(request, -101, "Error al realizar conexión con los servicios de GRAN CAHPUR:" + exHttpRequest.Message);
 
                 response.IsSuccess     = false;
-                response.Messages      = "Error al realizar conexión con tiendas CAHPUR, favor de intentar más tarde";
+                response.Messages      = "Error al realizar conexión con tiendas CHAPUR, favor de intentar más tarde";
                 response.InternalError = exHttpRequest.Message;
             }
             catch (Exception ex) //EXCEPCIÓN DE TODOS LOS TIPOS POSIBLES DE ERRORES
@@ -436,8 +441,6 @@ namespace PagosGranChapur.Services
         private async Task SaveTransaction(SavePaymentRequest request, string message)
         {
 
-            var result = new Response<PaymentWSResponse>();
-
             var transaction = new Transaction
             {
                 NameCreditCard  = request.NameCreditCard,
@@ -460,9 +463,9 @@ namespace PagosGranChapur.Services
                 PlatformId      = transaction.PlatformId
             };
 
-            await this._transactionRepository.AddAsync(transaction);
-            await this._logTransactionRepository.AddAsync(logTransaction);
-            await this._unitOfWork.SaveChangesAsync();
+            await _transactionRepository.AddAsync(transaction);
+            await _logTransactionRepository.AddAsync(logTransaction);
+            await _unitOfWork.SaveChangesAsync();
             
         }
 
@@ -554,8 +557,9 @@ namespace PagosGranChapur.Services
                 await _unitOfWork.SaveChangesAsync();
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
+                response.Mensaje = "Problemas al agregar el catálogo";
             }
         }
 
@@ -569,8 +573,8 @@ namespace PagosGranChapur.Services
             var response      = new List<ValidacionPrp>();
             var starMonthtDay = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var lastMonthDay  = (new DateTime(DateTime.Today.Year, DateTime.Today.AddMonths(1).Month, 1).AddDays(-1));
-            var monday        = this.FirstDateInWeek(DateTime.Today);
-            var sunday        = this.LastDayOfWeek(DateTime.Today);
+            var monday        = FirstDateInWeek(DateTime.Today);
+            var sunday        = LastDayOfWeek(DateTime.Today);
 
             var transactionsMonth = _transactionRepository.GetMany(t => t.NameCreditCard == name && (t.CreateDate >= starMonthtDay && t.CreateDate <= lastMonthDay) && t.AutorizationId != null).ToList();
             var transactionsDay   = transactionsMonth.Where(t => t.CreateDate.Date == DateTime.Today.Date).ToList();
