@@ -1,7 +1,5 @@
 ﻿using PagosGranChapur.Entities.Base;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PagosGranChapur.Entities
 {

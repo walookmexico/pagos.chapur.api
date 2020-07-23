@@ -1,20 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Autofac;
+using Autofac.Integration.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.OAuth;
+using PagosGranChapur.Entities;
+using PagosGranChapur.Services;
+using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using PagosGranChapur.Services;
-using PagosGranChapur.Entities;
-using Microsoft.Owin;
-using System;
-using System.Linq;
-using System.Configuration;
-using PagosGranChapur.Data;
-using PagosGranChapur.Data.Infrastructure;
-using PagosGranChapur.Entities.Responses;
-using PagosGranChapur.Repositories;
-using Autofac.Integration.Owin;
-using Autofac;
 
 namespace PagosGranChapur.API.Auth
 {
@@ -45,11 +38,22 @@ namespace PagosGranChapur.API.Auth
                     return;
                 }
                                 
-                var userResponse = await _srvUser.ValidateUser(context.UserName, context.Password);               
-                if (userResponse != null && userResponse.IsSuccess) {
-                    this._user = userResponse.Data;
-                } else {
-                    context.SetError("validation_user", $"Usuario y/o contraseña no validos: { userResponse.InternalError }");
+                var userResponse = await _srvUser.ValidateUser(context.UserName, context.Password);
+                if (userResponse != null)
+                {
+                    if (userResponse.IsSuccess)
+                    {
+                        this._user = userResponse.Data;
+                    }
+                    else
+                    {
+                        context.SetError("validation_user", $"Usuario y/o contraseña no validos: { userResponse.InternalError }");
+                        return;
+                    }
+                }
+                else
+                {
+                    context.SetError("validation_user", "Error de conexión");
                     return;
                 }
 
@@ -65,7 +69,7 @@ namespace PagosGranChapur.API.Auth
 
                 context.Validated(ticket);
             }
-            catch (Exception es)
+            catch (Exception)
             {
                 throw;
             }

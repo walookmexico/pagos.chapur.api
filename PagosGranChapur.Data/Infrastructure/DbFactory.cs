@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PagosGranChapur.Data.Infrastructure
+﻿namespace PagosGranChapur.Data.Infrastructure
 {
     public class DbFactory : Disposable, IDbFactory
     {

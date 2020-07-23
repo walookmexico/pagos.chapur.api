@@ -1,8 +1,7 @@
 namespace PagosGranChapur.Data.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class PaymentsDBv19 : DbMigration
     {
         public override void Up()

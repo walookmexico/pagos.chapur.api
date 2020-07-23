@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PagosGranChapur.Entities.Responses
+﻿namespace PagosGranChapur.Entities.Responses
 {
     public class Response<T> : ResponseBase
     {
