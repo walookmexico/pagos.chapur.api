@@ -131,25 +131,27 @@ namespace PagosGranChapur.API.Controllers
         [Route("creditcard")]
         public async Task<IHttpActionResult> CreditCard(int id)
         {
-            var response = new Response<CreditCard>();
-
-            try
+            Response<CreditCard> creditCardResponse = await Task.Run(() =>
             {
-                var creditcardList = new CreditCardsList();
-                response.Data      = creditcardList.GetCreditCard(id);
-                response.IsSuccess = true;
-                return Ok(response);
+                var response = new Response<CreditCard>();
 
-            }
-            catch (System.Exception ex)
-            {
-                response.IsSuccess = false;
-                response.Messages = "Error al realizar el pago, favor de intentar más tarde";
-                response.InternalError = ex.Message;
+                try
+                {
+                    var creditcardList = new CreditCardsList();
+                    response.Data = creditcardList.GetCreditCard(id);
+                    response.IsSuccess = true;
+                }
+                catch (System.Exception ex)
+                {
+                    response.IsSuccess = false;
+                    response.Messages = "Error al realizar el pago, favor de intentar más tarde";
+                    response.InternalError = ex.Message;
+                }
 
-                return Ok(response);
-            }
+                return response;
+            });
 
+            return Ok(creditCardResponse);
         }
     }
 }

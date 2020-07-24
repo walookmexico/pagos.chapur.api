@@ -28,9 +28,15 @@ namespace PagosGranChapur.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> LoadData()
         {
-            _transactionService.LoadData();
-
-            return Ok();
+            try
+            {
+                var response = await _transactionService.LoadData();
+                return Ok(response);
+            } 
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
 
         /// <summary>

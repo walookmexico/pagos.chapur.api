@@ -94,13 +94,20 @@ namespace PagosGranChapur.Data.Infrastructure
 
         public virtual async Task<T> AddAsync(T t)
         {
+            var addAsyncTask = new TaskCompletionSource<T>();
             dbSet.Add(t);
+            addAsyncTask.SetResult(t);
+            await addAsyncTask.Task;
+            
             return t;
         }
 
         public virtual async Task DeleteAsync(T entity)
         {
+            var deleteAsyncTask = new TaskCompletionSource<T>();
             dbSet.Remove(entity);
+            deleteAsyncTask.SetResult(entity);
+            await deleteAsyncTask.Task;
         }
     }
 }

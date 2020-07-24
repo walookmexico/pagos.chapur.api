@@ -51,36 +51,41 @@ namespace PagosGranChapur.Services
         /// <returns></returns>
         public async Task<Response<List<Transaction>>> Filter(DateTime stardDate, DateTime? endDate, int[] storeId, int[] platformId)
         {
-            var response = new Response<List<Transaction>>();
-
-            try
+            Response<List<Transaction>> filterResponse = await Task.Run(() =>
             {
-                var start = stardDate.Date;
-                var end   = endDate.Value.Date.AddDays(1);
+                var response = new Response<List<Transaction>>();
 
-                var data = _transactionRepository.GetMany(t => t.CreateDate >= start 
-                                                                        && t.CreateDate <= end);
+                try
+                {
+                    var start = stardDate.Date;
+                    var end = endDate.Value.Date.AddDays(1);
 
-                if (platformId.Where(x => x > 0).Count() > 0 ) 
-                    data = data.Where(t => platformId.Contains(t.PlatformId)).ToList();                
+                    var data = _transactionRepository.GetMany(t => t.CreateDate >= start
+                                                                            && t.CreateDate <= end);
 
-                if (storeId.Where(x => x > 0).Count() > 0)
-                    data = data.Where(t => storeId.Contains(t.StoreId)).ToList();
-                                
-                
-                response.Data      = data?.ToList();
-                response.Messages  = "Datos obtenidos correctaente";
-                response.IsSuccess = true;
+                    if (platformId.Where(x => x > 0).Count() > 0)
+                        data = data.Where(t => platformId.Contains(t.PlatformId)).ToList();
 
-            }
-            catch (Exception ex)
-            {
-                response.InternalError = ex.Message;
-                response.IsSuccess     = false;
-                response.Messages      = "Error al filtar los datos";
-            }
+                    if (storeId.Where(x => x > 0).Count() > 0)
+                        data = data.Where(t => storeId.Contains(t.StoreId)).ToList();
 
-            return response;
+
+                    response.Data = data?.ToList();
+                    response.Messages = "Datos obtenidos correctaente";
+                    response.IsSuccess = true;
+
+                }
+                catch (Exception ex)
+                {
+                    response.InternalError = ex.Message;
+                    response.IsSuccess = false;
+                    response.Messages = "Error al filtar los datos";
+                }
+
+                return response;
+            });
+
+            return filterResponse;
         }
 
         /// <summary>
@@ -257,81 +262,89 @@ namespace PagosGranChapur.Services
 
         public async Task<Response<bool>> LoadData()
         {
-            var reponse = new Response<bool>();
-
-            try
+            Response<bool> loadDataResponse = await Task.Run(() =>
             {
-                var storeId = 1;
-                var sellByDay = 1;
-                var addDays = 1;
-                var descriptionStore = "E-COMMERCE";
-                var limitSellByDay = 10;
+                var response = new Response<bool>();
 
-                Random rnd = new Random();
+                try
+                {
+                    var storeId = 1;
+                    var sellByDay = 1;
+                    var addDays = 1;
+                    var descriptionStore = "E-COMMERCE";
+                    var limitSellByDay = 10;
 
-                for (int i = 1; i <= 4500; i++) {
+                    Random rnd = new Random();
 
-                  
-                    switch (storeId)
+                    for (int i = 1; i <= 4500; i++)
                     {
-                        case 1:
-                            descriptionStore = "E-COMMERCE";
-                            break;
-                        case 2:
-                            descriptionStore = "VIAJES";
-                            break;
-                        default:
-                            descriptionStore = "MESA DE REGALO";
-                            break;
+
+
+                        switch (storeId)
+                        {
+                            case 1:
+                                descriptionStore = "E-COMMERCE";
+                                break;
+                            case 2:
+                                descriptionStore = "VIAJES";
+                                break;
+                            default:
+                                descriptionStore = "MESA DE REGALO";
+                                break;
+
+                        }
+
+                        float division = i / 3F;
+                        var isError = unchecked(division == (int)division);
+
+                        var transaction = new Transaction
+                        {
+                            UserId = rnd.Next(1, 40000),
+                            Amount = rnd.Next(350, 11000),
+                            AutorizationId = rnd.Next(1, 20001).ToString(),
+                            CreateDate = DateTime.Today.AddDays(addDays),
+                            Email = "carga@integrait.com.mx",
+                            NameCreditCard = "CARGA INICIAL",
+                            //PurchaseOrderId = rnd.Next(1, 6000),
+                            StoreId = rnd.Next(1, 3),
+                            PlatformId = storeId,
+                            DecriptionPlatform = descriptionStore,
+                            StoreDescripcion = descriptionStore
+                        };
+
+                        if (storeId == 3)
+                            storeId = 1;
+
+                        if (sellByDay == limitSellByDay)
+                        {
+                            addDays++;
+                            sellByDay = 1;
+                            limitSellByDay = rnd.Next(5, 30);
+                        }
+
+                        sellByDay++;
+                        storeId++;
+
+                        _transactionRepository.Add(transaction);
 
                     }
 
-                    float division = i / 3F;
-                    var isError = unchecked(division == (int)division);
-
-                    var transaction = new Transaction {
-                        UserId = rnd.Next(1, 40000),
-                        Amount = rnd.Next(350, 11000),
-                        AutorizationId = rnd.Next(1, 20001).ToString(),
-                        CreateDate = DateTime.Today.AddDays(addDays),
-                        Email = "carga@integrait.com.mx",
-                        NameCreditCard = "CARGA INICIAL",                        
-                        //PurchaseOrderId = rnd.Next(1, 6000),
-                        StoreId = rnd.Next(1, 3),
-                        PlatformId = storeId,
-                        DecriptionPlatform = descriptionStore,
-                        StoreDescripcion = descriptionStore                        
-                    };
-
-                    if (storeId == 3) 
-                        storeId = 1;                    
-
-                    if (sellByDay == limitSellByDay)
-                    {
-                        addDays++;
-                        sellByDay = 1;
-                        limitSellByDay = rnd.Next(5,30);
-                    }
-
-                    sellByDay++;
-                    storeId++;
-
-                    _transactionRepository.Add(transaction);
-                    
+                    _unitOfWork.Commit();
+                    response.IsSuccess = true;
+                    response.Data = true;
+                }
+                catch (Exception ex)
+                {
+                    response.IsSuccess = false;
+                    response.Messages = "Ocurrió un error al intentar realizar la carga inicial";
+                    response.InternalError = ex.Message;
                 }
 
-                _unitOfWork.Commit();
+                return response;
+            });
 
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-
-            return reponse;
+            return loadDataResponse;
         }
-
         #endregion
     }
 }
