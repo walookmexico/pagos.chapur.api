@@ -6,7 +6,7 @@ namespace PagosGranChapur.API.Models
 {
     public class CreditCardsList
     {
-        private List<CreditCard> _list;
+        private readonly List<CreditCard> _list;
 
         public CreditCardsList() {
 

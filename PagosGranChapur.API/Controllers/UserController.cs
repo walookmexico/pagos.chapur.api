@@ -28,7 +28,12 @@ namespace PagosGranChapur.API.Controllers
         [AllowAnonymous]
         public async Task<IHttpActionResult> ValidateSession()
         {
-            return Ok();
+            var validaSessionTask = new Task<IHttpActionResult>(() =>
+            {
+                return Ok();
+            });
+
+            return await validaSessionTask;
         }
 
         /// <summary>

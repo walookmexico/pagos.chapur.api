@@ -2,6 +2,7 @@
 
 namespace PagosGranChapur.Entities.Helpers
 {
+    [Serializable]
     public class ValidationPiorpiException: Exception
     {
         public ValidationPiorpiException()
