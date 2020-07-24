@@ -46,37 +46,42 @@ namespace PagosGranChapur.Services
         /// <returns></returns>
         public async Task<Response<UserApplication>> ValidateUser(string username, string password)
         {
-            var response = new Response<UserApplication>();
-
-            try
+            Response<UserApplication> userResponse = await Task.Run(() =>
             {
-                var encryptPassword = this.EncodeMD5(password);
-                var user            =  _userRepository.Get(x => x.UserName == username && x.Password == encryptPassword);
+                var response = new Response<UserApplication>();
 
-                if (user == null)
-                    throw new Exception("No se encontró usuario con los datos proporcionados");
-
-
-                response.IsSuccess = true;
-                response.Data = new UserApplication
+                try
                 {
-                    EmailAddress   = user.Email,                    
-                    Id             = user.Id,                    
-                    FullName       = user.FullName,
-                    Rol            = user.RolId == 1 ? EnumRoles.Administrator : EnumRoles.Consulting ,
-                    UserName       = user.UserName,
-                    ChangePassword = user.ChangePassword,
-                };
-            }
-            catch (Exception ex)
-            {
-                response.IsSuccess     = false;
-                response.Messages      = "Problemas al validar el usuario: ";
-                response.InternalError = ex.Message;
-                
-            }
+                    var encryptPassword = this.EncodeMD5(password);
+                    var user = _userRepository.Get(x => x.UserName == username && x.Password == encryptPassword);
 
-            return response;
+                    if (user == null)
+                        throw new Exception("No se encontró usuario con los datos proporcionados");
+
+
+                    response.IsSuccess = true;
+                    response.Data = new UserApplication
+                    {
+                        EmailAddress = user.Email,
+                        Id = user.Id,
+                        FullName = user.FullName,
+                        Rol = user.RolId == 1 ? EnumRoles.Administrator : EnumRoles.Consulting,
+                        UserName = user.UserName,
+                        ChangePassword = user.ChangePassword,
+                    };
+                }
+                catch (Exception ex)
+                {
+                    response.IsSuccess = false;
+                    response.Messages = "Problemas al validar el usuario: ";
+                    response.InternalError = ex.Message;
+
+                }
+
+                return response;
+            });
+
+            return userResponse;
         }
 
         /// <summary>
@@ -86,40 +91,46 @@ namespace PagosGranChapur.Services
         /// <returns></returns>
         public async Task<Response<User>> AddUser(SaveUserRequest request)
         {
-            var response = new Response<User>();
-
-            try
+            Response<User> addUserResponse = await Task.Run(() =>
             {
-                var user = (new User
+                var response = new Response<User>();
+
+                try
                 {
-                    CreateDate = DateTime.Now,
-                    UpdateDate = DateTime.Now,
-                    Email      = request.Email.Trim().ToLower(),
-                    FullName   = request.FullName,
-                    Password   = this.EncodeMD5(request.Password),
-                    RolId      = request.RolId,
-                    UserName   = request.UserName.Trim().ToLower()
-                });
+                    var user = (new User
+                    {
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now,
+                        Email = request.Email.Trim().ToLower(),
+                        FullName = request.FullName,
+                        Password = this.EncodeMD5(request.Password),
+                        RolId = request.RolId,
+                        UserName = request.UserName.Trim().ToLower()
+                    });
 
-                _userRepository.Add(user);
-                _unitOfWork.Commit();
+                    _userRepository.Add(user);
+                    _unitOfWork.Commit();
 
-                response = new Response<User>{
-                    Data       = user,
-                    IsSuccess  = true,
-                    Messages   = "Usuario creado correctamente"
-                };
+                    response = new Response<User>
+                    {
+                        Data = user,
+                        IsSuccess = true,
+                        Messages = "Usuario creado correctamente"
+                    };
 
-            }
-            catch (Exception ex)
-            {
-                response.IsSuccess      = false;
-                response.Messages       = "Problemas al validar el usuario";
-                response.InternalError  = ex.Message;
+                }
+                catch (Exception ex)
+                {
+                    response.IsSuccess = false;
+                    response.Messages = "Problemas al validar el usuario";
+                    response.InternalError = ex.Message;
 
-            }
+                }
 
-            return response;
+                return response;
+            });
+
+            return addUserResponse;
         }
 
         /// <summary>
@@ -129,41 +140,45 @@ namespace PagosGranChapur.Services
         /// <returns>Objeto User con los datos actualizados</returns>
         public async Task<Response<User>> UpdateUser(UpdateUserRequest request)
         {
-            var response = new Response<User>();
-
-            try
+            Response<User> updateUserResponse = await Task.Run(() =>
             {
-                var user = _userRepository.GetById(request.Id);
+                var response = new Response<User>();
 
-                if (user == null) throw new Exception("Usuario no encontrado dentro de la based de datos");
-
-                user.FullName   = request.FullName;
-                user.RolId      = request.RolId;
-                user.UserName   = request.UserName;
-                user.UpdateDate = DateTime.Now;
-                user.Email      = request.Email;
-                
-                _userRepository.Update(user);
-                _unitOfWork.Commit();
-
-                response = new Response<User>
+                try
                 {
-                    Data      = user,
-                    IsSuccess = true,
-                    Messages  = "Datos del usuario actualizados correctamente"
-                };
+                    var user = _userRepository.GetById(request.Id);
 
-            }
-            catch (Exception ex)
-            {
-                response.IsSuccess = false;
-                response.Messages = "Problemas al actualizar los datos del usuario";
-                response.InternalError = ex.Message;
+                    if (user == null) throw new Exception("Usuario no encontrado dentro de la based de datos");
 
-            }
+                    user.FullName = request.FullName;
+                    user.RolId = request.RolId;
+                    user.UserName = request.UserName;
+                    user.UpdateDate = DateTime.Now;
+                    user.Email = request.Email;
 
-            return response;
+                    _userRepository.Update(user);
+                    _unitOfWork.Commit();
 
+                    response = new Response<User>
+                    {
+                        Data = user,
+                        IsSuccess = true,
+                        Messages = "Datos del usuario actualizados correctamente"
+                    };
+
+                }
+                catch (Exception ex)
+                {
+                    response.IsSuccess = false;
+                    response.Messages = "Problemas al actualizar los datos del usuario";
+                    response.InternalError = ex.Message;
+
+                }
+
+                return response;
+            });
+
+            return updateUserResponse;
         }
                 
         /// <summary>
@@ -238,23 +253,28 @@ namespace PagosGranChapur.Services
         /// <returns>Objeto tipo User que contiene todos los datos del usuario</returns>
         public async Task<Response<User>> GetById(int userId)
         {
-            var response = new Response<User>();
+            Response<User> userByIdResponse = await Task.Run(() => 
+            { 
+                var response = new Response<User>();
 
-            try
-            {
-                response.Data = _userRepository.GetById(userId);
-                response.IsSuccess = true;
-                response.Messages = "Listado de usuario obtenido d emanera exitosa";
-            }
-            catch (Exception)
-            {
-                response.IsSuccess = false;
-                response.Messages = "Error al obtener el listado de usuarios";
-                response.Data = null;
+                try
+                {
+                    response.Data = _userRepository.GetById(userId);
+                    response.IsSuccess = true;
+                    response.Messages = "Listado de usuario obtenido d emanera exitosa";
+                }
+                catch (Exception)
+                {
+                    response.IsSuccess = false;
+                    response.Messages = "Error al obtener el listado de usuarios";
+                    response.Data = null;
 
-            }
+                }
 
-            return response;
+                return response;
+            });
+
+            return userByIdResponse;
         }
 
         /// <summary>
@@ -264,45 +284,50 @@ namespace PagosGranChapur.Services
         /// <returns></returns>
         public async Task<Response<User>> RecoveryPassword(string email, string bodyHTML) {
 
-            var response = new Response<User>();
-
-            try
+            Response<User> recoveryPasswordResponse = await Task.Run(() =>
             {
-                var user =  _userRepository.Get(x => x.Email.Trim() == email.Trim());
+                var response = new Response<User>();
 
-                if (user == null) {
-                    response.Messages  = $"El usuario con correo eléctronico { email } no ha sido encontrado, favor de corroborar la información";
+                try
+                {
+                    var user = _userRepository.Get(x => x.Email.Trim() == email.Trim());
+
+                    if (user == null)
+                    {
+                        response.Messages = $"El usuario con correo eléctronico { email } no ha sido encontrado, favor de corroborar la información";
+                        response.IsSuccess = false;
+
+                        return response;
+                    }
+
+                    var password = this.RandomString(18);
+                    user.Password = this.EncodeMD5(password);
+                    user.UpdateDate = DateTime.Now;
+                    user.Email = user.Email.Trim();
+                    user.UserName = user.UserName.Trim();
+                    user.ChangePassword = true;
+
+                    _userRepository.Update(user);
+                    _unitOfWork.SaveChanges();
+
+                    bodyHTML = bodyHTML.Replace("[token]", password);
+                    MailService.SendMessage(email, bodyHTML, "Password");
+
+                    response.IsSuccess = true;
+                    response.Messages = "Se han generado una contraseña temporal la cuál se mando al correo proporcionado ";
+
+                }
+                catch (Exception ex)
+                {
+                    response.Data = null;
                     response.IsSuccess = false;
-
-                    return response;
+                    response.Messages = ex.Message;
                 }
 
-                var password        = this.RandomString(18);
-                user.Password       = this.EncodeMD5(password);
-                user.UpdateDate     = DateTime.Now;
-                user.Email          = user.Email.Trim();
-                user.UserName       = user.UserName.Trim();
-                user.ChangePassword = true;
+                return response;
+            });
 
-                _userRepository.Update(user);
-                _unitOfWork.SaveChanges();
-
-                bodyHTML  = bodyHTML.Replace("[token]", password);
-                MailService.SendMessage(email, bodyHTML, "Password");
-
-                response.IsSuccess = true;
-                response.Messages  = "Se han generado una contraseña temporal la cuál se mando al correo proporcionado ";
-
-            }
-            catch (Exception ex)
-            {
-                response.Data      = null;
-                response.IsSuccess = false;
-                response.Messages  = ex.Message;
-            }
-
-            return response;
-
+            return recoveryPasswordResponse;
         }
 
         /// <summary>

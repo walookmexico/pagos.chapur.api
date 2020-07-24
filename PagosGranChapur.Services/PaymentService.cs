@@ -110,7 +110,7 @@ namespace PagosGranChapur.Services
                     ConInteres           = request.WithInterest.Value
                 };
                 
-                errorPiorpi = await this.ValidatePIORPI(request.NameCreditCard, request.Amount);                                
+                errorPiorpi = await ValidatePIORPI(request.NameCreditCard, request.Amount);                                
 
                 dataService.ReglaPrp = (int)EnumPiorpi.Correcto;
 
@@ -130,12 +130,12 @@ namespace PagosGranChapur.Services
                 {
                     if (purchaseOrderResponse.Estatus > 0)
                     {
-                        response = await this.SaveTransaction(purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
+                        response = await SaveTransaction(purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
                         response.IsSuccess = true;
                         response.Messages = "Pago aplicado correctamente";
 
 
-                        await this.AddCatalog(purchaseOrderResponse);
+                        await AddCatalog(purchaseOrderResponse);
                     }
                     else
                     {
@@ -147,7 +147,7 @@ namespace PagosGranChapur.Services
                         response.IsSuccess = false;
                         response.Messages = "Problemas al ejecutar el servicio de pago";
 
-                        await this.SaveLog(request, purchaseOrderResponse.Estatus.Value, purchaseOrderResponse.Mensaje);
+                        await SaveLog(request, purchaseOrderResponse.Estatus.Value, purchaseOrderResponse.Mensaje);
                     }
                 } 
                 else
@@ -158,7 +158,7 @@ namespace PagosGranChapur.Services
             }           
             catch (System.Net.Http.HttpRequestException exHttpRequest)  //EXCEPCIÓN DE CONEXIÓN CON EL SERVIDOR DE SERVICIOS DE CHAPUR
             {
-                await this.SaveLog(request, -101, "Error al realizar conexión con los servicios de GRAN CAHPUR:" + exHttpRequest.Message);
+                await SaveLog(request, -101, "Error al realizar conexión con los servicios de GRAN CAHPUR:" + exHttpRequest.Message);
 
                 response.IsSuccess     = false;
                 response.Messages      = "Error al realizar conexión con tiendas CHAPUR, favor de intentar más tarde";
@@ -180,7 +180,7 @@ namespace PagosGranChapur.Services
                 response.IsSuccess = false;
                 response.Messages = "Error al ejecutar el pago, favor de intentar más tarde";
 
-                await this.SaveLog(request, -102, "Error al ejecutar el pago, favor de intentar más tarde:" + response.InternalError);
+                await SaveLog(request, -102, "Error al ejecutar el pago, favor de intentar más tarde:" + response.InternalError);
 
             }
 
@@ -246,7 +246,7 @@ namespace PagosGranChapur.Services
                     ListadoDetalle       = detail
                 };
 
-                errorPiorpi = await this.ValidatePIORPI(request.NameCreditCard, request.Amount);
+                errorPiorpi = await ValidatePIORPI(request.NameCreditCard, request.Amount);
                 switch (errorPiorpi.Count)
                 {
                     case 0:
@@ -267,32 +267,39 @@ namespace PagosGranChapur.Services
                 var purchaseOrderResponse = await RequestService.Post<OrdenCompraDetalleRequest, PaymentWSResponse>(apiUrl, baseURL, dataService);
 
                 //VALIDAR LA RESPUESTA DEL SERVICIO
-                if (purchaseOrderResponse != null && purchaseOrderResponse.Estatus > 0)
+                if (purchaseOrderResponse != null)
                 {
-                    response = await this.SaveTransaction(purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
-                    response.IsSuccess = true;
-                    response.Messages = "Pago aplicado correctamente";
-
-                    await this.AddCatalog(purchaseOrderResponse);
-                }
-                else
-                {
-                    response.Data = new PaymentWSResponse
+                    if (purchaseOrderResponse.Estatus > 0)
                     {
-                        Estatus = purchaseOrderResponse.Estatus.Value,
-                        Mensaje = purchaseOrderResponse.Mensaje,
-                    };
-                    response.IsSuccess = false;
-                    response.Messages = "Problemas al ejecutar el servicio de pago";
+                        response = await SaveTransaction(purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
+                        response.IsSuccess = true;
+                        response.Messages = "Pago aplicado correctamente";
 
-                    await this.SaveLog(request, purchaseOrderResponse.Estatus.Value, purchaseOrderResponse.Mensaje);
+                        await AddCatalog(purchaseOrderResponse);
+                    }
+                    else
+                    {
+                        response.Data = new PaymentWSResponse
+                        {
+                            Estatus = purchaseOrderResponse.Estatus.Value,
+                            Mensaje = purchaseOrderResponse.Mensaje,
+                        };
+                        response.IsSuccess = false;
+                        response.Messages = "Problemas al ejecutar el servicio de pago";
+
+                        await SaveLog(request, purchaseOrderResponse.Estatus.Value, purchaseOrderResponse.Mensaje);
+                    }
                 }
-
+                else 
+                {
+                    response.IsSuccess = false;
+                    response.Messages = "Error de conexión con el Servicio de Pago";
+                }
                 
             }           
             catch (System.Net.Http.HttpRequestException exHttpRequest)
             {
-                await this.SaveLog(request, -101, "Error al realizar conexión con los servicios de GRAN CAHPUR:" + exHttpRequest.Message);
+                await SaveLog(request, -101, "Error al realizar conexión con los servicios de GRAN CAHPUR:" + exHttpRequest.Message);
 
                 response.IsSuccess = false;
                 response.Messages = "Error al realizar conexión con tiendas CAHPUR, favor de intentar más tarde";
@@ -314,7 +321,7 @@ namespace PagosGranChapur.Services
                 response.IsSuccess = false;
                 response.Messages = "Error al ejecutar el pago, favor de intentar más tarde";
 
-                await this.SaveLog(request, -102, "Error al ejecutar el pago, favor de intentar más tarde:" + response.InternalError);
+                await SaveLog(request, -102, "Error al ejecutar el pago, favor de intentar más tarde:" + response.InternalError);
 
             }
 
@@ -372,7 +379,7 @@ namespace PagosGranChapur.Services
 
             var result = new Response<PaymentWSResponse>();
 
-            var transacction = new Entities.Transaction
+            var transacction = new Transaction
             {
                 DecriptionPlatform  = response.DescripcionPlataforma,
                 NameCreditCard      = request.NameCreditCard,
@@ -413,9 +420,9 @@ namespace PagosGranChapur.Services
                 PlatformId      = transacction.PlatformId
             };
 
-            await this._transactionRepository.AddAsync(transacction);
-            await this._logTransactionRepository.AddAsync(logTransaction);
-            await this._unitOfWork.SaveChangesAsync();
+            await _transactionRepository.AddAsync(transacction);
+            await _logTransactionRepository.AddAsync(logTransaction);
+            await _unitOfWork.SaveChangesAsync();
 
             result.Data = new PaymentWSResponse
             {
@@ -570,48 +577,52 @@ namespace PagosGranChapur.Services
         /// <returns></returns>
         private async Task<List<ValidacionPrp>> ValidatePIORPI(string name, decimal total)
         {
-            var response      = new List<ValidacionPrp>();
-            var starMonthtDay = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            var lastMonthDay  = (new DateTime(DateTime.Today.Year, DateTime.Today.AddMonths(1).Month, 1).AddDays(-1));
-            var monday        = FirstDateInWeek(DateTime.Today);
-            var sunday        = LastDayOfWeek(DateTime.Today);
+            List<ValidacionPrp> validacions = await Task.Run(() =>
+               {
+                   var response = new List<ValidacionPrp>();
+                   var starMonthtDay = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                   var lastMonthDay = (new DateTime(DateTime.Today.Year, DateTime.Today.AddMonths(1).Month, 1).AddDays(-1));
+                   var monday = FirstDateInWeek(DateTime.Today);
+                   var sunday = LastDayOfWeek(DateTime.Today);
 
-            var transactionsMonth = _transactionRepository.GetMany(t => t.NameCreditCard == name && (t.CreateDate >= starMonthtDay && t.CreateDate <= lastMonthDay) && t.AutorizationId != null).ToList();
-            var transactionsDay   = transactionsMonth.Where(t => t.CreateDate.Date == DateTime.Today.Date).ToList();
-            var trasactionsWeek   = transactionsMonth.Where(t => t.CreateDate.Date >= monday.Date && t.CreateDate.Date <= sunday.Date).ToList();
+                   var transactionsMonth = _transactionRepository.GetMany(t => t.NameCreditCard == name && (t.CreateDate >= starMonthtDay && t.CreateDate <= lastMonthDay) && t.AutorizationId != null).ToList();
+                   var transactionsDay = transactionsMonth.Where(t => t.CreateDate.Date == DateTime.Today.Date).ToList();
+                   var trasactionsWeek = transactionsMonth.Where(t => t.CreateDate.Date >= monday.Date && t.CreateDate.Date <= sunday.Date).ToList();
 
-            var limitDay   = decimal.Parse(ConfigurationManager.AppSettings["PIORPI.Limit.Day"].ToString());
-            var limitWeek  = decimal.Parse(ConfigurationManager.AppSettings["PIORPI.Limit.Week"].ToString());
-            var limitYear  = decimal.Parse(ConfigurationManager.AppSettings["PIORPI.Limit.Month"].ToString());
-            var totalDia   = transactionsDay.Sum(t => t.Amount) + total;
-            var totalWeek  = trasactionsWeek.Sum(t => t.Amount) + total;
-            var totakMonth = transactionsMonth.Sum(t => t.Amount) + total;
+                   var limitDay = decimal.Parse(ConfigurationManager.AppSettings["PIORPI.Limit.Day"].ToString());
+                   var limitWeek = decimal.Parse(ConfigurationManager.AppSettings["PIORPI.Limit.Week"].ToString());
+                   var limitYear = decimal.Parse(ConfigurationManager.AppSettings["PIORPI.Limit.Month"].ToString());
+                   var totalDia = transactionsDay.Sum(t => t.Amount) + total;
+                   var totalWeek = trasactionsWeek.Sum(t => t.Amount) + total;
+                   var totakMonth = transactionsMonth.Sum(t => t.Amount) + total;
 
-            // Al solicitar una o más transacciones que sumen 40 mil pesos o mayor en un día, se requiere una validación con el cliente.
-            if (totalDia >= limitDay )
-            {
-                response.Add(new ValidacionPrp($"Limite díario de {limitDay.ToString("C")} superado, se requiere aprobación por parte del cliente", EnumReglaPiorpi.LimiteExcedidoMontoDiario));
-            }
+                // Al solicitar una o más transacciones que sumen 40 mil pesos o mayor en un día, se requiere una validación con el cliente.
+                if (totalDia >= limitDay)
+                   {
+                       response.Add(new ValidacionPrp($"Limite díario de {limitDay.ToString("C")} superado, se requiere aprobación por parte del cliente", EnumReglaPiorpi.LimiteExcedidoMontoDiario));
+                   }
 
-            // Al solicitar más de 2 transacciones en un solo día, se requiere una validación con el cliente.
-            if (transactionsDay.Count >= 2)
-            {
-                response.Add(new ValidacionPrp("Se supero el número de compras diarios, se requiere aprobación por parte del cliente", EnumReglaPiorpi.LimiteComprasPorDia));
-            }
+                // Al solicitar más de 2 transacciones en un solo día, se requiere una validación con el cliente.
+                if (transactionsDay.Count >= 2)
+                   {
+                       response.Add(new ValidacionPrp("Se supero el número de compras diarios, se requiere aprobación por parte del cliente", EnumReglaPiorpi.LimiteComprasPorDia));
+                   }
 
-            // Al solicitar transacciones que sumen 80 mil pesos o mas en una semana, se requiere una validación con el cliente.
-            if ( totalWeek >= limitWeek )
-            {
-                response.Add(new ValidacionPrp($"Se supero el limite de compras semanal de {limitWeek.ToString("C")}, se requiere aprobación por parte del cliente", EnumReglaPiorpi.LimiteExcedidoMontoSemanal));
-            }
+                // Al solicitar transacciones que sumen 80 mil pesos o mas en una semana, se requiere una validación con el cliente.
+                if (totalWeek >= limitWeek)
+                   {
+                       response.Add(new ValidacionPrp($"Se supero el limite de compras semanal de {limitWeek.ToString("C")}, se requiere aprobación por parte del cliente", EnumReglaPiorpi.LimiteExcedidoMontoSemanal));
+                   }
 
-            // Al solicitar una o más transacciones que sumen 100 mil pesos o mas en un mes, se requiere una validación con el cliente.
-            if (totakMonth  >= limitYear)
-            {
-                response.Add(new ValidacionPrp($"Se supero el limite de compras mensual de {limitYear.ToString("C")}, se requiere aprobación por parte del cliente", EnumReglaPiorpi.LimiteExcedidoMontoMensual));
-            }
+                // Al solicitar una o más transacciones que sumen 100 mil pesos o mas en un mes, se requiere una validación con el cliente.
+                if (totakMonth >= limitYear)
+                   {
+                       response.Add(new ValidacionPrp($"Se supero el limite de compras mensual de {limitYear.ToString("C")}, se requiere aprobación por parte del cliente", EnumReglaPiorpi.LimiteExcedidoMontoMensual));
+                   }
 
-            return response;
+                   return response;
+               });
+            return validacions;
         }
 
         /// <summary>
