@@ -61,16 +61,15 @@ namespace PagosGranChapur.API.Auth
                 identity.AddClaim(new Claim("user_name", this._user.UserName));
                 identity.AddClaim(new Claim(ClaimTypes.Role, this._user.Rol.ToString()));
                 identity.AddClaim(new Claim(ClaimTypes.Name, this._user.Id.ToString()));
-                
-                var clientId = context.ClientId;
 
                 AuthenticationProperties properties = CreateProperties(this._user);
                 AuthenticationTicket ticket = new AuthenticationTicket(identity, properties);
 
                 context.Validated(ticket);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                context.SetError("validation_user", ex.Message);
                 throw;
             }
           
@@ -91,15 +90,7 @@ namespace PagosGranChapur.API.Auth
 
         public override Task GrantRefreshToken(OAuthGrantRefreshTokenContext context)
         {
-            //validate your client  
-            //var currentClient = context.ClientId;  
-
-            //if (Client does not match)  
-            //{  
-            //    context.SetError("invalid_clientId", "Refresh token is issued to a different clientId.");  
-            //    return Task.FromResult<object>(null);  
-            //}  
-
+ 
             // Change authentication ticket for refresh token requests  
             var newIdentity = new ClaimsIdentity(context.Ticket.Identity);
             newIdentity.AddClaim(new Claim("newClaim", "newValue"));

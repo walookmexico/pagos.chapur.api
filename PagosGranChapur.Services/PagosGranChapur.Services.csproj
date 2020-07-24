@@ -59,7 +59,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\Converter.cs" />
     <Compile Include="Helpers\MailService.cs" />
+    <Compile Include="Helpers\MailServiceException.cs" />
     <Compile Include="Helpers\RequestService.cs" />
     <Compile Include="PaymentService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

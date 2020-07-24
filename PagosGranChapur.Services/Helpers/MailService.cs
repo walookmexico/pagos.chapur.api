@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PagosGranChapur.Entities.Helpers;
+using System;
 using System.Configuration;
 using System.Net.Mail;
 
@@ -26,7 +27,6 @@ namespace PagosGranChapur.Services.Helpers
                 mail.Body       = htmlBody;
                 mail.IsBodyHtml = true;
 
-                //smtpServer.UseDefaultCredentials = false    ;    
                 smtpServer.Host        = ConfigurationManager.AppSettings["API.Email.Servidor.SMTP"];
                 smtpServer.Port        = int.Parse(ConfigurationManager.AppSettings["API.Email.Servidor.Port"].ToString());
                 smtpServer.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["API.Email.Usuario"], ConfigurationManager.AppSettings["API.Email.Password"]);
@@ -37,7 +37,7 @@ namespace PagosGranChapur.Services.Helpers
             }
             catch (Exception ex)
             {
-                throw new Exception( $"Error al intentar de mandar el correo electrónico al correo {emailClient}: {ex.Message}");
+                throw new MailServiceException( $"Error al intentar de mandar el correo electrónico al correo {emailClient}: {ex.Message}");
             }           
 
         }

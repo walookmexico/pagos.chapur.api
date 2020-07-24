@@ -6,11 +6,6 @@ namespace PagosGranChapur.Data.Infrastructure
     {
         private bool isDisposed;
 
-        ~Disposable()
-        {
-            Dispose(false);
-        }
-
         public void Dispose()
         {
             Dispose(true);
@@ -30,6 +25,11 @@ namespace PagosGranChapur.Data.Infrastructure
 
         protected virtual void DisposeCore()
         {
+        }
+
+        ~Disposable()
+        {
+            Dispose(false);
         }
 
     }

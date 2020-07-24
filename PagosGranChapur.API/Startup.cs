@@ -18,7 +18,7 @@ namespace PagosGranChapur.API
 {
     public partial class Startup
     {
-        private static IContainer ContainerIoC;
+        private IContainer ContainerIoC;
 
         public void Configuration(IAppBuilder app)
         {   

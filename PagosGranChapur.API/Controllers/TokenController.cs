@@ -1,6 +1,4 @@
 ﻿using PagosGranChapur.Entities.Request;
-using PagosGranChapur.Entities.Responses;
-using PagosGranChapur.Entities.WebServerResponses;
 using PagosGranChapur.Services;
 using System.Configuration;
 using System.Linq;
@@ -27,7 +25,6 @@ namespace PagosGranChapur.API.Controllers
         [Route("Create")]
         public async Task<IHttpActionResult> Create(TokenRequest request)
         {
-            var response = new Response<TokenWSResponse>();
             
             if(request == null)
                 return BadRequest();
@@ -37,16 +34,13 @@ namespace PagosGranChapur.API.Controllers
 
             string bodyHTML = System.IO.File.ReadAllText(System.Web.HttpContext.Current.Request.MapPath(ConfigurationManager.AppSettings["API.Email.Template"]));
 
-            response = await this._tokenService.CreateToken(request,ConfigurationManager.AppSettings["Chapur.API.BaseURL"],
+            var response = await this._tokenService.CreateToken(request,ConfigurationManager.AppSettings["Chapur.API.BaseURL"],
                                                             ConfigurationManager.AppSettings["Chapur.API.Token"], bodyHTML);
 
-            if (ConfigurationManager.AppSettings["API.Env"].ToString() == "prod")
+            if (ConfigurationManager.AppSettings["API.Env"].ToString() == "prod" && response.Data.Token != null)
             {
-                if (response.Data.Token != null)
-                {
                     response.Data.Token = this.ReplaceCharacter(response.Data.Token);
                     response.Data.Telefono = "**********".Substring(0, response.Data.Telefono.Length - 4) + response.Data.Telefono.Substring(response.Data.Telefono.Length - 4, 4);
-                }
             }
 
             return Ok(response);

@@ -52,10 +52,12 @@
     <Compile Include="Enums\EnumPiorpi.cs" />
     <Compile Include="Enums\EnumReglaPiorpi.cs" />
     <Compile Include="Enums\EnumRoles.cs" />
+    <Compile Include="Helpers\Converter.cs" />
     <Compile Include="Helpers\CryptoMessage.cs" />
     <Compile Include="Helpers\DateFormatConverter .cs" />
     <Compile Include="Helpers\ErrorHandler.cs" />
     <Compile Include="Helpers\ValidationPiorpiException.cs" />
+    <Compile Include="Helpers\Validator.cs" />
     <Compile Include="LogTransaction.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

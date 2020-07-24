@@ -13,7 +13,7 @@ namespace PagosGranChapur.Entities.Helpers
 
     public class CryptoMessage : ICryptoMessage
     {
-        private string key = "8080808080CHAPUR";
+        private readonly string key = "8080808080CHAPUR";
 
         /// <summary>
         /// FUNCION PARA DESENCRIPTAR  UNA CADENA
@@ -86,24 +86,18 @@ namespace PagosGranChapur.Entities.Helpers
                 // Create a decrytor to perform the stream transform.  
                 var decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
 
+                MemoryStream msDecrypt = null;
+                CryptoStream csDecrypt = null;
+                StreamReader srDecrypt = null;
                 try
                 {
                     // Create the streams used for decryption.  
-                    using (var msDecrypt = new MemoryStream(cipherText))
-                    {
-                        using (var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                        {
-
-                            using (var srDecrypt = new StreamReader(csDecrypt))
-                            {
-                                // Read the decrypted bytes from the decrypting stream  
-                                // and place them in a string.  
-                                plaintext = srDecrypt.ReadToEnd();
-
-                            }
-
-                        }
-                    }
+                    msDecrypt = new MemoryStream(cipherText);
+                    csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
+                    srDecrypt = new StreamReader(csDecrypt);
+                    // Read the decrypted bytes from the decrypting stream  
+                    // and place them in a string.  
+                    plaintext = srDecrypt.ReadToEnd();
                 }
                 catch
                 {

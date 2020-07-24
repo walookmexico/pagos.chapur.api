@@ -1,10 +1,7 @@
-﻿using PagosGranChapur.Entities;
-using PagosGranChapur.Entities.Responses;
+﻿using PagosGranChapur.Entities.Helpers;
 using PagosGranChapur.Services;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -30,8 +27,9 @@ namespace PagosGranChapur.API.Controllers
         {
             try
             {
-                var response = await _transactionService.LoadData();
-                return Ok(response);
+                return Ok(
+                    await _transactionService.LoadData()
+                );
             } 
             catch (Exception)
             {
@@ -55,21 +53,23 @@ namespace PagosGranChapur.API.Controllers
         {
             try
             {
-                int[] stores = null;
-                int[] plarforms = null;
+ 
+                string result = Validator.ValidateDates(startDate, endDate);
+                
+                if (result == null)
+                {
+                    int[] stores = Converter.StringIdToArrayIntId(storeId);
+                    int[] plarforms = Converter.StringIdToArrayIntId(platformId);
 
-                var response = new Response<List<Transaction>>();
-
-                if (startDate == null) throw new Exception("La fecha de inicio es requerida");
-
-                if (endDate == null) throw new Exception("La fecha de termino es requerida");
-
-                stores    = storeId.Split(',').Where(s => s != "0").Select(s => int.Parse(s)).ToArray();
-                plarforms = platformId.Split(',').Where(s => s != "0").Select(s => int.Parse(s)).ToArray();
-
-                response   = await _transactionService.Filter(startDate.Value, endDate, stores, plarforms);                
-
-                return Ok(response);
+                    return Ok(
+                        await _transactionService.Filter(startDate.Value, endDate, stores, plarforms)
+                    );
+                } 
+                else
+                {
+                    return BadRequest();
+                }
+                
             }
             catch (Exception)
             {                
@@ -93,21 +93,23 @@ namespace PagosGranChapur.API.Controllers
         {
             try
             {
-                int[] stores = null;
-                int[] plarforms = null;
 
-                var response = new Response<List<LogTransaction>>();
+                string result = Validator.ValidateDates(startDate, endDate);
 
-                if (startDate == null) throw new Exception("La fecha de inicio es requerida");
+                if (result == null)
+                {
+                    int[] stores = Converter.StringIdToArrayIntId(storeId);
+                    int[] plarforms = Converter.StringIdToArrayIntId(platformId);
 
-                if (endDate == null) throw new Exception("La fecha de termino es requerida");
+                    return Ok(
+                        await _transactionService.FilterLog(startDate.Value, endDate, stores, plarforms)
+                    );
+                }
+                else
+                {
+                    return BadRequest();
+                }
 
-                stores = storeId.Split(',').Where(s => s != "0").Select(s => int.Parse(s)).ToArray();
-                plarforms = platformId.Split(',').Select(s => int.Parse(s)).ToArray();
-
-                response = await _transactionService.FilterLog(startDate.Value, endDate, stores, plarforms);
-
-                return Ok(response);
             }
             catch (Exception)
             {
@@ -129,12 +131,11 @@ namespace PagosGranChapur.API.Controllers
         {
             try
             {                
-                var response = new Response<List<Transaction>>();                                
 
-                response = await _transactionService.CheckStatusTransactions(startDate.Value, endDate, ConfigurationManager.AppSettings["Chapur.API.EstatusCompra"],
-                                                                             ConfigurationManager.AppSettings["Chapur.API.BaseURL"]);
-
-                return Ok(response);
+                return Ok(
+                    await _transactionService.CheckStatusTransactions(startDate.Value, endDate, ConfigurationManager.AppSettings["Chapur.API.EstatusCompra"],
+                                                                             ConfigurationManager.AppSettings["Chapur.API.BaseURL"])
+                    );
             }
             catch (Exception)
             {
@@ -154,12 +155,11 @@ namespace PagosGranChapur.API.Controllers
         {
             try
             {
-                var response = new Response<List<Transaction>>();
 
-                response = await _transactionService.CheckStatusTransactionsWithOutId(ConfigurationManager.AppSettings["Chapur.API.EstatusCompra"],
-                                                                                      ConfigurationManager.AppSettings["Chapur.API.BaseURL"]);
-
-                return Ok(response);
+                return Ok(
+                    await _transactionService.CheckStatusTransactionsWithOutId(ConfigurationManager.AppSettings["Chapur.API.EstatusCompra"],
+                                                                                      ConfigurationManager.AppSettings["Chapur.API.BaseURL"])
+                    );
             }
             catch (Exception)
             {

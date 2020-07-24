@@ -36,7 +36,7 @@ namespace PagosGranChapur.Services.Helpers
                         if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
                             throw new HttpRequestException($"Problemas al conectarse con el servidor de servicios: {(int)response.StatusCode} - {response.StatusCode}");
                         else
-                            throw new Exception(response.ReasonPhrase);
+                            throw new HttpRequestException(response.ReasonPhrase);
                     }
                 }
                 
