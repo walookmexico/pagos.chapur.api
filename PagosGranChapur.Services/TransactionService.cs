@@ -1,6 +1,7 @@
 ﻿using PagosGranChapur.Data.Infrastructure;
 using PagosGranChapur.Entities;
 using PagosGranChapur.Entities.Enums;
+using PagosGranChapur.Entities.Helpers;
 using PagosGranChapur.Entities.Responses;
 using PagosGranChapur.Entities.WebServerRequest;
 using PagosGranChapur.Entities.WebServerResponses;
@@ -71,15 +72,13 @@ namespace PagosGranChapur.Services
 
 
                     response.Data = data?.ToList();
-                    response.Messages = "Datos obtenidos correctaente";
-                    response.IsSuccess = true;
+                    ResponseConverter.SetSuccessResponse(response, "Datos obtenidos correctamente");
 
                 }
                 catch (Exception ex)
                 {
                     response.InternalError = ex.Message;
-                    response.IsSuccess = false;
-                    response.Messages = "Error al filtar los datos";
+                    ResponseConverter.SetErrorResponse(response, "Error al filtar los datos");
                 }
 
                 return response;
@@ -111,14 +110,12 @@ namespace PagosGranChapur.Services
                     data = data.Where(t => platformId.Contains(t.PlatformId)).ToList();
 
                 response.Data      = data?.ToList();
-                response.IsSuccess = true;
-                response.Messages  = "Datos obtenidos correctamente";
+                ResponseConverter.SetSuccessResponse(response, "Datos obtenidos correctamente");
             }
             catch (Exception ex)
             {
                 response.InternalError  = ex.Message;
-                response.IsSuccess      = false;
-                response.Messages       = "Error al filtar los datos";
+                ResponseConverter.SetErrorResponse(response, "Error al filtar los datos");
             }
 
             return response;
@@ -176,21 +173,17 @@ namespace PagosGranChapur.Services
                 _unitOfWork.SaveChanges();
 
                 response.Data      = data?.ToList();
-                response.Messages  = "Datos obtenidos correctaente";
-                response.IsSuccess = true;
-
+                ResponseConverter.SetSuccessResponse(response, "Datos obtenidos correctaente");
             }
             catch (System.Net.Http.HttpRequestException httpEx)
             {
                 response.InternalError = httpEx.Message;
-                response.IsSuccess     = false;
-                response.Messages      = "Error al conectarde son los servicios de CHapur";
+                ResponseConverter.SetErrorResponse(response, "Error al conectarse con los servicios de Chapur");
             }
             catch (Exception ex)
             {
                 response.InternalError = ex.Message;
-                response.IsSuccess = false;
-                response.Messages = "Error al filtar los datos";
+                ResponseConverter.SetErrorResponse(response, "Error al filtar los datos");
             }
 
             return response;
@@ -243,18 +236,13 @@ namespace PagosGranChapur.Services
                 _unitOfWork.SaveChanges();
 
                 response.Data = data?.ToList();
-                response.Messages = "Datos obtenidos correctaente";
-                response.IsSuccess = true;
-
+                ResponseConverter.SetSuccessResponse(response, "Datos obtenidos correctaente");
             }
             catch (Exception ex)
             {
                 response.InternalError = ex.Message;
-                response.IsSuccess = false;
-                response.Messages = "Error al filtar los datos";
+                ResponseConverter.SetErrorResponse(response, "Error al filtar los datos");
             }
-
-    
 
             return response;
 
@@ -335,8 +323,7 @@ namespace PagosGranChapur.Services
                 }
                 catch (Exception ex)
                 {
-                    response.IsSuccess = false;
-                    response.Messages = "Ocurrió un error al intentar realizar la carga inicial";
+                    ResponseConverter.SetErrorResponse(response, "Ocurrió un error al intentar realizar la carga inicial");
                     response.InternalError = ex.Message;
                 }
 

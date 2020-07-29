@@ -3,18 +3,18 @@
 namespace PagosGranChapur.Entities.Helpers
 {
     [Serializable]
-    public class MailServiceException : Exception
+    public class PagosChapurException : Exception
     {
-        public MailServiceException()
+        public PagosChapurException()
         {
         }
 
-        public MailServiceException(string message)
+        public PagosChapurException(string message)
             : base(message)
         {
         }
 
-        public MailServiceException(string message, Exception inner)
+        public PagosChapurException(string message, Exception inner)
             : base(message, inner)
         {
         }

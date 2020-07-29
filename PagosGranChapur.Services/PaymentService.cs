@@ -1,6 +1,7 @@
 ﻿using PagosGranChapur.Data.Infrastructure;
 using PagosGranChapur.Entities;
 using PagosGranChapur.Entities.Enums;
+using PagosGranChapur.Entities.Helpers;
 using PagosGranChapur.Entities.Request;
 using PagosGranChapur.Entities.Responses;
 using PagosGranChapur.Entities.WebServerRequest;
@@ -113,14 +114,12 @@ namespace PagosGranChapur.Services
                         DescripcionTienda = isExistTransactions.StoreDescripcion
                     };
 
-                    response.IsSuccess = true;
-                    response.Messages = "Ya existe una transacion registrada";
+                    ResponseConverter.SetSuccessResponse(response, "Ya existe una transacion registrada");
                 }
                 else
                 {
                     response.Data = null;
-                    response.IsSuccess = false;
-                    response.Messages = "Existe una transaccion registrada con el mismo orden de compra pero diferente total, favor de revisar este dato";
+                    ResponseConverter.SetErrorResponse(response, "Existe una transaccion registrada con el mismo orden de compra pero diferente total, favor de revisar este dato");
                 }
             }
 
@@ -130,7 +129,7 @@ namespace PagosGranChapur.Services
         private async Task<Response<PaymentWSResponse>> SavePurchaseOrder(Response<PaymentWSResponse> response, SaveOrderPaymentRequest request, string apiUrl, string baseURL)
         {
             //ASIGNAR LO VALORES AL OBJETO REQUERIDO POR EL SERVICIO
-            var dataService = Converter.OrderPaymentToOrdenCompra(request);
+            var dataService = PaymentConverter.OrderPaymentToOrdenCompra(request);
 
             var errorPiorpi = await ValidatePIORPI(request.NameCreditCard, request.Amount);
 
@@ -148,48 +147,45 @@ namespace PagosGranChapur.Services
             var purchaseOrderResponse = await RequestService.Post<OrdenCompraRequest, PaymentWSResponse>(apiUrl, baseURL, dataService);
 
             //VALIDAR LA RESPUESTA DEL SERVICIO
-            ValidateResponse(response, purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
+            if (purchaseOrderResponse != null)
+            {
+                await ValidateResponse(response, purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
+            }
+            else
+            {
+                ResponseConverter.SetErrorResponse(response, "Error de conexión con tiendas CHAPUR.");
+            }
 
             return response;
         }
 
-        private async void ValidateResponse(Response<PaymentWSResponse> response, PaymentWSResponse purchaseOrderResponse, SaveOrderPaymentRequest request,  int reglaPrp, List<ValidacionPrp> errorPiorpi)
+        private async Task ValidateResponse(Response<PaymentWSResponse> response, PaymentWSResponse purchaseOrderResponse, SavePaymentRequest request,  int reglaPrp, List<ValidacionPrp> errorPiorpi)
         {
-            if (purchaseOrderResponse != null)
+           
+            if (purchaseOrderResponse.Estatus > 0)
             {
+                response = await SaveTransaction(purchaseOrderResponse, request, reglaPrp, errorPiorpi);
+                ResponseConverter.SetSuccessResponse(response, "Pago aplicado correctamente");
 
-                if (purchaseOrderResponse.Estatus > 0)
-                {
-                    response = await SaveTransaction(purchaseOrderResponse, request, reglaPrp, errorPiorpi);
-                    response.IsSuccess = true;
-                    response.Messages = "Pago aplicado correctamente";
-
-                    await AddCatalog(purchaseOrderResponse);
-                }
-                else
-                {
-                    response.Data = new PaymentWSResponse
-                    {
-                        Estatus = purchaseOrderResponse.Estatus.Value,
-                        Mensaje = purchaseOrderResponse.Mensaje,
-                    };
-                    response.IsSuccess = false;
-                    response.Messages = "Problemas al ejecutar el servicio de pago";
-
-                    await SaveLog(request, purchaseOrderResponse.Estatus.Value, purchaseOrderResponse.Mensaje);
-                }
+                await AddCatalog(purchaseOrderResponse);
             }
             else
             {
-                response.IsSuccess = false;
-                response.Messages = "Error de conexión con tiendas CHAPUR.";
+                response.Data = new PaymentWSResponse
+                {
+                    Estatus = purchaseOrderResponse.Estatus.Value,
+                    Mensaje = purchaseOrderResponse.Mensaje,
+                };
+                ResponseConverter.SetErrorResponse(response, "Problemas al ejecutar el servicio de pago");
+
+                await SaveLog(request, purchaseOrderResponse.Estatus.Value, purchaseOrderResponse.Mensaje);
             }
+            
         }
 
         private void SetErrorPurchaseOrder(Response<PaymentWSResponse> response, String message)
         {
-            response.IsSuccess = false;
-            response.Messages = "Error al realizar conexión con tiendas CHAPUR, favor de intentar más tarde";
+            ResponseConverter.SetErrorResponse(response, "Error al realizar conexión con tiendas CHAPUR, favor de intentar más tarde");
             response.InternalError = message;
         }
 
@@ -205,8 +201,7 @@ namespace PagosGranChapur.Services
             else
                 response.InternalError = ex.Message;
 
-            response.IsSuccess = false;
-            response.Messages = "Error al ejecutar el pago, favor de intentar más tarde";
+            ResponseConverter.SetErrorResponse(response, "Error al ejecutar el pago, favor de intentar más tarde");
         }
 
         /// <summary>
@@ -219,70 +214,22 @@ namespace PagosGranChapur.Services
         /// <returns></returns>
         public async Task<Response<PaymentWSResponse>> ApplyPaymentDetail(SaveDetailPaymentRequest request, string apiUrl, string baseURL)
         {
-            var response    = new Response<PaymentWSResponse>();
-            var errorPiorpi = new List<ValidacionPrp>();
+            var response = new Response<PaymentWSResponse>();
 
             try
             {
                 if (request.Detail == null)
                 {
-                    response.IsSuccess = false;
-                    response.Messages = "El detalle de la compra es requerido";
+                    ResponseConverter.SetSuccessResponse(response, "El detalle de la compra es requerido");
 
                     return response;
                 }
 
-                var detail = new List<DetalleCompra>();
+                var dataService = PaymentConverter.SaveDetailPaymentToOrdenCompraDetalle(request);
 
-                request.Detail.ForEach(d =>
-                {
-                    detail.Add(new DetalleCompra
-                    {
-                        Cantidad = d.Quantity,
-                        CostoPromedio = d.AverageCost,
-                        Descuento = d.Discount,
-                        IdArticulo = d.ItemId,
-                        IEPS = d.IEPS,
-                        IVA = d.IVA,
-                        PrecioSinImpuesto = d.PriceWithoutTax
-                    });
-                });
+                var errorPiorpi = await ValidatePIORPI(request.NameCreditCard, request.Amount);
 
-                
-                var dataService = new OrdenCompraDetalleRequest
-                {
-                    CorreoElectronico    = request.Email,
-                    CVV                  = request.CVV,
-                    FechaAlta            = request.CreateDate,
-                    IdOrden              = request.IdPurchaseOrder,
-                    IdPlataforma         = request.PlatformId,
-                    IdTienda             = request.IdStore,
-                    Monto                = (float)request.Amount,
-                    NombreCuentaHabiente = request.NameCreditCard,
-                    NoTarjeta            = request.NoCreditCard,
-                    PasswordPlataforma   = request.PasswordPlatform,
-                    Token                = request.Token,
-                    UsuarioPlataforma    = request.UserPlatform,
-                    Meses                = request.Months.Value,
-                    ConInteres           = request.WithInterest.Value,
-                    ListadoDetalle       = detail
-                };
-
-                errorPiorpi = await ValidatePIORPI(request.NameCreditCard, request.Amount);
-                switch (errorPiorpi.Count)
-                {
-                    case 0:
-                        dataService.ReglaPrp = (int)EnumPiorpi.Correcto;
-                        break;
-                    case 1:
-                    case 2:
-                        dataService.ReglaPrp = (int)EnumPiorpi.Pendiente;
-                        break;
-                    default:                    
-                        dataService.ReglaPrp = (int)EnumPiorpi.Alerta;
-                        break;
-                }
-
+                SetReglaPrp(dataService, errorPiorpi);
 
                 dataService.DetalleValidacionesPrp = errorPiorpi;
 
@@ -291,63 +238,45 @@ namespace PagosGranChapur.Services
                 //VALIDAR LA RESPUESTA DEL SERVICIO
                 if (purchaseOrderResponse != null)
                 {
-                    if (purchaseOrderResponse.Estatus > 0)
-                    {
-                        response = await SaveTransaction(purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
-                        response.IsSuccess = true;
-                        response.Messages = "Pago aplicado correctamente";
-
-                        await AddCatalog(purchaseOrderResponse);
-                    }
-                    else
-                    {
-                        response.Data = new PaymentWSResponse
-                        {
-                            Estatus = purchaseOrderResponse.Estatus.Value,
-                            Mensaje = purchaseOrderResponse.Mensaje,
-                        };
-                        response.IsSuccess = false;
-                        response.Messages = "Problemas al ejecutar el servicio de pago";
-
-                        await SaveLog(request, purchaseOrderResponse.Estatus.Value, purchaseOrderResponse.Mensaje);
-                    }
+                    await ValidateResponse(response, purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
                 }
-                else 
+                else
                 {
-                    response.IsSuccess = false;
-                    response.Messages = "Error de conexión con el Servicio de Pago";
+                    ResponseConverter.SetErrorResponse(response, "Error de conexión con el Servicio de Pago");
                 }
-                
+
             }           
             catch (System.Net.Http.HttpRequestException exHttpRequest)
             {
-                await SaveLog(request, -101, "Error al realizar conexión con los servicios de GRAN CAHPUR:" + exHttpRequest.Message);
+                await SaveLog(request, -101, "Error al realizar conexión con los servicios de GRAN CHAPUR:" + exHttpRequest.Message);
 
-                response.IsSuccess = false;
-                response.Messages = "Error al realizar conexión con tiendas CAHPUR, favor de intentar más tarde";
-                response.InternalError = exHttpRequest.Message;
+                SetErrorPurchaseOrder(response, exHttpRequest);
             }
             catch (Exception ex)
             {
-
-                if (ex.InnerException != null)
-                {
-                    if (ex.InnerException.InnerException != null)
-                        response.InternalError = ex.InnerException.InnerException.Message;
-                    else
-                        response.InternalError = ex.InnerException.Message;
-                }
-                else
-                    response.InternalError = ex.Message;
-
-                response.IsSuccess = false;
-                response.Messages = "Error al ejecutar el pago, favor de intentar más tarde";
+                SetErrorPurchaseOrder(response, ex);
 
                 await SaveLog(request, -102, "Error al ejecutar el pago, favor de intentar más tarde:" + response.InternalError);
-
             }
 
             return response;
+        }
+
+        private void SetReglaPrp(OrdenCompraDetalleRequest dataService, List<ValidacionPrp> errorPiorpi)
+        {
+            switch (errorPiorpi.Count)
+            {
+                case 0:
+                    dataService.ReglaPrp = (int)EnumPiorpi.Correcto;
+                    break;
+                case 1:
+                case 2:
+                    dataService.ReglaPrp = (int)EnumPiorpi.Pendiente;
+                    break;
+                default:
+                    dataService.ReglaPrp = (int)EnumPiorpi.Alerta;
+                    break;
+            }
         }
 
         /// <summary>
@@ -366,19 +295,15 @@ namespace PagosGranChapur.Services
             {
                 var statusPurchaseOrder = await RequestService.Post<EstatusCompraWSRequest, EstatusCompraWSResponse>(apiUrl, baseURL, request);
                 response.Data = statusPurchaseOrder;
-                response.IsSuccess = true;
-                response.Messages = "Autorización validada correctamente";
+                ResponseConverter.SetSuccessResponse(response, "Autorización validada correctamente");
 
             }
             catch (Exception ex)
             {
-                response.IsSuccess = false;
                 response.Data = null;
-                response.Messages = "Error al intentar de validar el estatus de la compra";
+                ResponseConverter.SetErrorResponse(response, "Error al intentar de validar el estatus de la compra");
                 response.InternalError = ex.Message;
             }
-
-
             return response;
 
         }
@@ -401,24 +326,9 @@ namespace PagosGranChapur.Services
 
             var result = new Response<PaymentWSResponse>();
 
-            var transacction = new Transaction
-            {
-                DecriptionPlatform  = response.DescripcionPlataforma,
-                NameCreditCard      = request.NameCreditCard,
-                StoreDescripcion    = response.DescripcionTienda,
-                UserId              = response.IdUsuario != null ? response.IdUsuario.Value : 0,
-                PlatformId          = response.IdPlatadorma != null ? response.IdPlatadorma.Value : 0,
-                AutorizationId      = response.IdAutorizacion != null ? response.IdAutorizacion.ToString() : "0",
-                Amount              = response.Monto != null ? decimal.Parse(response.Monto.Value.ToString()) : 0,
-                CreateDate          = response.FechaHoraAplicacion != null ? response.FechaHoraAplicacion.Value : DateTime.Now,
-                PurchaseOrderId     = request.IdPurchaseOrder,
-                StoreId             = response.IdTienda != null ? response.IdTienda.Value : 0,
-                Email               = request.Email,
-                StatusPiorpi        = statusPiorpi,
-                Months              = request.Months.Value,
-                WithInterest        = request.WithInterest.Value,
+            var transacction = PaymentConverter.ToTransaction(response, request);
 
-            };
+            transacction.StatusPiorpi = statusPiorpi;
 
             if (statusPiorpi == 2) {
 
@@ -428,36 +338,16 @@ namespace PagosGranChapur.Services
 
             }
             else if (statusPiorpi == 3) {
-
                 transacction.DetailPiorpi = "Tiene más de 3 transaciones en estatus pendiente";
-            }            
+            }
 
-            var logTransaction = new LogTransaction
-            {
-                DateApply       = transacction.CreateDate,
-                MessageResponse = response.Mensaje,
-                PurchaseOrderID = transacction.PurchaseOrderId,
-                Status          = response.Estatus != null ? response.Estatus.Value : 0,
-                TransactionId   = transacction.Id,
-                PlatformId      = transacction.PlatformId
-            };
+            var logTransaction = PaymentConverter.ToLogTransaction(transacction, response);
 
             await _transactionRepository.AddAsync(transacction);
             await _logTransactionRepository.AddAsync(logTransaction);
             await _unitOfWork.SaveChangesAsync();
 
-            result.Data = new PaymentWSResponse
-            {
-                Estatus               = logTransaction.Status,
-                IdAutorizacion        = transacction.AutorizationId,
-                IdPlatadorma          = transacction.PlatformId,
-                Mensaje               = logTransaction.MessageResponse,
-                FechaHoraAplicacion   = transacction.CreateDate,
-                Monto                 = (float)transacction.Amount,
-                NombreCuentaHabiente  = transacction.NameCreditCard,
-                DescripcionTienda     = transacction.StoreDescripcion,
-                DescripcionPlataforma = transacction.DecriptionPlatform
-            };
+            result.Data = PaymentConverter.LogTransactionToPaymentResponse(logTransaction, transacction);
 
             return result;
         }

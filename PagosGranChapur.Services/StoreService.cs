@@ -1,5 +1,6 @@
 ﻿using PagosGranChapur.Data.Infrastructure;
 using PagosGranChapur.Entities;
+using PagosGranChapur.Entities.Helpers;
 using PagosGranChapur.Repositories;
 using System;
 using System.Collections.Generic;
@@ -41,7 +42,7 @@ namespace PagosGranChapur.Services
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new PagosChapurException(ex.Message);
             }
         }
 
@@ -58,7 +59,7 @@ namespace PagosGranChapur.Services
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new PagosChapurException(ex.Message);
             }
         }
     }

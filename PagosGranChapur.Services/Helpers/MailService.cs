@@ -37,7 +37,7 @@ namespace PagosGranChapur.Services.Helpers
             }
             catch (Exception ex)
             {
-                throw new MailServiceException( $"Error al intentar de mandar el correo electrónico al correo {emailClient}: {ex.Message}");
+                throw new PagosChapurException( $"Error al intentar de mandar el correo electrónico al correo {emailClient}: {ex.Message}");
             }           
 
         }

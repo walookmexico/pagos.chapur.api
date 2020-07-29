@@ -158,6 +158,27 @@
             background-color: #e4e4e4 !important;
         }
 
+        .table-principal {
+            width: 100%;
+        }
+
+        .no-border {
+            padding: 0px;
+            border-spacing: 0px;
+        }
+
+        .row-principal {
+            width: 600px;
+        }
+
+        .row-secondary {
+            width: 350px;
+        }
+
+        .hidden-row {
+            display: none;
+        }
+
         .margin-height {
             margin-bottom: 0px;
             margin-top: 0px;
@@ -168,8 +189,22 @@
             margin-right: 0px;
         }
 
+        .align-center {
+            text-align: center;
+            display: inline-block;
+            margin: 0;
+        }
+
+        .align-right {
+            text-align: right !important;
+        }
+
+        .valign-top {
+            vertical-align: top !important;
+        }
+
         @media only screen and (max-device-width: 480px) {
-            div[class="header"] {
+            div [class="header"] {
                 font-size: 16px !important;
             }
 
@@ -233,35 +268,52 @@
     </style>
 </head>
 <body class="content-white margin-height margin-width" topmargin=" 0" leftmargin="0" style="-webkit-font-smoothing: antialiased;width:100% !important;background:#ffffff;-webkit-text-size-adjust:none;">
-    <table class="content-grey" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <table class="table-principal no-border content-grey" border="0" aria-describedby="Tabla principal">
+        <tr class="hidden-row">
+            <th id="hidden-col-1">hidden row 1</th>
+        </tr>
         <tr>
-            <td class="content-white" width="100%">
-                <table width="600" cellpadding="0" cellspacing="0" border="0" align="center" class="table">
+            <td class="row-principal content-white">
+                <table border="0" class="table no-border row-principal align-center" aria-describedby="Tabla 1">
+                    <tr class="hidden-row">
+                        <th id="hidden-col-2">hidden row 2</th>
+                    </tr>
                     <tr>
-                        <td width="600" class="cell">
-                            <table width="600" cellpadding="0" cellspacing="0" border="0" class="table">
+                        <td class="cell row-principal">
+                            <table border="0" class="table no-border row-principal" aria-describedby="Tabla 2">
+                                <tr class="hidden-row">
+                                    <th id="hidden-col-3">hidden row 3</th>
+                                </tr>
                                 <tr>
-                                    <td align="right" width="350" class="hide content-white" id="web-version" style="color:#B00909;font-size:12px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;text-shadow: 0 1px 0 #ffffff;font-weight:bold" valign="top">
-                                        <img border="0" src="/images/spacer.gif" width="1" height="15"><br>
-                                        
+                                    <td class="hide content-white row-secondary align-right valign-top" id="web-version" style="color:#B00909;font-size:12px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;text-shadow: 0 1px 0 #ffffff;font-weight:bold">
+                                        <img border="0" src="/images/spacer.gif" width="1" height="15" alt="spacer-1"><br>
                                     </td>
                                 </tr>
                             </table>
                             <img src="https://chapur-dashboard-7b774c.s3.amazonaws.com/assets/img/logo_negro.png" alt="Logotipo" />
-                            <table width="600" cellpadding="0" cellspacing="0" border="0" class="table">
+                            <table border="0" class="table no-border row-principal" aria-describedby="Tabla 3">
+                                <tr class="hidden-row">
+                                    <th id="hidden-col-4">hidden row 4</th>
+                                </tr>
                                 <tr>
-                                    <td class="content-white" align="center" width="350" style="color:#a6a6a6;font-size:12px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;text-shadow: 0 1px 0 #ffffff;font-weight:bold;" valign="top" >
-                                        <img border="0" src="/images/spacer.gif" width="1" height="15">
+                                    <td class="content-white row-secondary align-center valign-top" style="color:#a6a6a6;font-size:12px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;text-shadow: 0 1px 0 #ffffff;font-weight:bold;">
+                                        <img border="0" src="/images/spacer.gif" width="1" height="15" alt="spacer-2">
                                     </td>
                                 </tr>
                             </table>
-                            <img border="0" src="/images/spacer.gif" width="1" height="15" class="issue-divider"><br>
+                            <img border="0" src="/images/spacer.gif" width="1" height="15" class="issue-divider" alt="spacer-3"><br>
                             <repeater>
                                 <layout label="Headline">
-                                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                    <table class="table-principal no-border" border="0" aria-describedby="Tabla 4">
+                                        <tr class="hidden-row">
+                                            <th id="hidden-col-5">hidden row 5</th>
+                                        </tr>
                                         <tr>
-                                            <td width="100%" class="content-white">
-                                                <table width="100%" cellpadding="10" cellspacing="0" border="0">
+                                            <td class="table-principal content-white">
+                                                <table class="table-principal no-border" border="0" aria-describedby="Tabla 5">
+                                                    <tr class="hidden-row">
+                                                        <th id="hidden-col-6">hidden row 6</th>
+                                                    </tr>
                                                     <tr>
                                                         <td class="contentblock main content-white" style="border-bottom: 1px dotted #DDDDDD;">
                                                             <h4 class="secondary"><strong><singleline label="Title"> [detalle] </singleline></strong></h4>
@@ -271,13 +323,19 @@
                                             </td>
                                         </tr>
                                     </table>
-                                    <img border="0" src="/images/spacer.gif" width="1" height="10" class="divider"><br>
+                                    <img border="0" src="/images/spacer.gif" width="1" height="10" class="divider" alt="spacer-4"><br>
                                 </layout>
                                 <layout label="Main link">
-                                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                    <table class="table-principal no-border" border="0" aria-describedby="Tabla 6">
+                                        <tr class="hidden-row">
+                                            <th id="hidden-col-7">hidden row 7</th>
+                                        </tr>
                                         <tr>
-                                            <td width="100%" class="content-white">
-                                                <table width="100%" cellpadding="20" cellspacing="0" border="0">
+                                            <td class="content-white table-principal">
+                                                <table class="table-principal no-border" border="0" aria-describedby="Tabla 7">
+                                                    <tr class="hidden-row">
+                                                        <th id="hidden-col-8">hidden row 8</th>
+                                                    </tr>
                                                     <tr>
                                                         <td class="contentblock content-white">
                                                             <h2><multiline label="Description"><strong>[subTitle] [token]</strong></multiline></h2>
@@ -294,7 +352,7 @@
                                             </td>
                                         </tr>
                                     </table>
-                                    <img border="0" src="/images/spacer.gif" width="1" height="10" class="divider"><br>
+                                    <img border="0" src="/images/spacer.gif" width="1" height="10" class="divider" alt="spacer-5"><br>
                                 </layout>
                             </repeater>
                         </td>

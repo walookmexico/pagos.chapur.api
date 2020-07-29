@@ -1,4 +1,5 @@
-﻿using PagosGranChapur.Entities.Responses;
+﻿using PagosGranChapur.Entities.Helpers;
+using PagosGranChapur.Entities.Responses;
 using PagosGranChapur.Services;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -41,16 +42,14 @@ namespace PagosGranChapur.API.Controllers
                     Stores = stores
                 };
 
-                response.IsSuccess = true;
-                response.Messages = "Datos listados correctamente";
+                ResponseConverter.SetSuccessResponse(response, "Datos listados correctamente");
 
                 return Ok(response);
 
             }
             catch (System.Exception ex)
             {
-                response.IsSuccess = false;
-                response.Messages = "Error al obtener los datos";
+                ResponseConverter.SetErrorResponse(response, "Error al obtener los datos");
                 response.InternalError = ex.Message;
 
                 return Ok(response);

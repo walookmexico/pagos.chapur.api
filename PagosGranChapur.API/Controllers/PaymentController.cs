@@ -1,5 +1,6 @@
 ﻿using PagosGranChapur.API.Models;
 using PagosGranChapur.Entities;
+using PagosGranChapur.Entities.Helpers;
 using PagosGranChapur.Entities.Request;
 using PagosGranChapur.Entities.Responses;
 using PagosGranChapur.Entities.WebServerRequest;
@@ -47,8 +48,7 @@ namespace PagosGranChapur.API.Controllers
             }
             catch (System.Exception ex)
             {
-                response.IsSuccess     = false;
-                response.Messages      = "Error al realizar el pago, favor de intentar más tarde";
+                ResponseConverter.SetErrorResponse(response, "Error al realizar el pago, favor de intentar más tarde");
                 response.InternalError = ex.Message;
 
                 return Ok(response);
@@ -81,8 +81,7 @@ namespace PagosGranChapur.API.Controllers
             }
             catch (System.Exception ex)
             {
-                response.IsSuccess     = false;
-                response.Messages      = "Error al realizar el pago, favor de intentar más tarde";
+                ResponseConverter.SetErrorResponse(response, "Error al realizar el pago, favor de intentar más tarde");
                 response.InternalError = ex.Message;
 
                 return Ok(response);
@@ -111,8 +110,7 @@ namespace PagosGranChapur.API.Controllers
             }
             catch (System.Exception ex)
             {
-                response.IsSuccess     = false;
-                response.Messages      = "Error al validar el estatus de la compra";
+                ResponseConverter.SetErrorResponse(response, "Error al validar el estatus de la compra");
                 response.InternalError = ex.Message;
 
                 return Ok(response);
@@ -143,8 +141,7 @@ namespace PagosGranChapur.API.Controllers
                 }
                 catch (System.Exception ex)
                 {
-                    response.IsSuccess = false;
-                    response.Messages = "Error al realizar el pago, favor de intentar más tarde";
+                    ResponseConverter.SetErrorResponse(response, "Error al realizar el pago, favor de intentar más tarde");
                     response.InternalError = ex.Message;
                 }
 
