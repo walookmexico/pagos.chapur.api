@@ -1,4 +1,5 @@
 ﻿using PagosGranChapur.Entities;
+using PagosGranChapur.Entities.Helpers;
 using PagosGranChapur.Entities.Request;
 using PagosGranChapur.Entities.Responses;
 using PagosGranChapur.Services;
@@ -45,7 +46,7 @@ namespace PagosGranChapur.API.Controllers
         [Authorize(Roles = "Administrator")]        
         public async Task<IHttpActionResult> Save(SaveUserRequest request)
         {
-            var response = new Response<User>();
+            Response<User> response;
 
             try
             {
@@ -59,8 +60,7 @@ namespace PagosGranChapur.API.Controllers
             }
             catch (Exception ex)
             {
-                response.IsSuccess     = false;
-                response.InternalError = ex.Message;
+                response = ResponseConverter.ToExceptionResponse<User>(ex);
             }
 
             return Ok(response);
@@ -74,18 +74,17 @@ namespace PagosGranChapur.API.Controllers
         [Authorize(Roles = "Administrator")]        
         public async Task<IHttpActionResult> GetUser()
         {
-            var response = new Response<List<User>>();
+            Response<List<User>> response;
 
             try
             {
                 if (UserId == 0) return BadRequest();
 
-                response = await _userService.GetAll();                
+                response = await _userService.GetAll();
             }
             catch (Exception ex)
             {
-                response.IsSuccess = false;
-                response.Messages = ex.Message;
+                response = ResponseConverter.ToExceptionResponse<List<User>>(ex);
             }
 
             return Ok(response);
@@ -101,7 +100,7 @@ namespace PagosGranChapur.API.Controllers
         [Authorize(Roles = "Administrator")]        
         public async Task<IHttpActionResult> GetUser(int userId)
         {
-            var response = new Response<User>();
+            Response<User> response;
 
             try
             {
@@ -111,8 +110,7 @@ namespace PagosGranChapur.API.Controllers
             }
             catch (Exception ex)
             {
-                response.IsSuccess = false;
-                response.Messages = ex.Message;
+                response = ResponseConverter.ToExceptionResponse<User>(ex);
             }
 
             return Ok(response);
@@ -128,7 +126,7 @@ namespace PagosGranChapur.API.Controllers
         [Route("GetPerfil")]
         public async Task<IHttpActionResult> GetPerfil()
         {
-            var response = new Response<User>();
+            Response<User> response;
 
             try
             {
@@ -138,8 +136,7 @@ namespace PagosGranChapur.API.Controllers
             }
             catch (Exception ex)
             {
-                response.IsSuccess = false;
-                response.Messages = ex.Message;
+                response = ResponseConverter.ToExceptionResponse<User>(ex);
             }
 
             return Ok(response);
@@ -155,7 +152,7 @@ namespace PagosGranChapur.API.Controllers
         [Authorize(Roles = "Administrator")]        
         public async Task<IHttpActionResult> Update(UpdateUserRequest request)
         {
-            var response = new Response<User>();
+            Response<User> response;
 
             try
             {
@@ -171,8 +168,7 @@ namespace PagosGranChapur.API.Controllers
             }
             catch (Exception ex)
             {
-                response.IsSuccess     = false;
-                response.InternalError = ex.Message;
+                response = ResponseConverter.ToExceptionResponse<User>(ex);
             }
 
             return Ok(response);
@@ -189,7 +185,7 @@ namespace PagosGranChapur.API.Controllers
         public async Task<IHttpActionResult> RecoveryPassword(TempPassowrdRequest request)
         {
 
-            var response = new Response<User>();
+            Response<User> response;
 
             try
             {
@@ -201,8 +197,7 @@ namespace PagosGranChapur.API.Controllers
             }
             catch (Exception ex)
             {
-                response.IsSuccess = false;
-                response.InternalError = ex.Message;
+                response = ResponseConverter.ToExceptionResponse<User>(ex);
             }
 
             return Ok(response);
@@ -218,7 +213,7 @@ namespace PagosGranChapur.API.Controllers
         [Route("UpdatePassword")]
         public async Task<IHttpActionResult> UpdatePassword(UpdatePasswordRequest request)
         {
-            var response = new Response<bool>();
+            Response<bool> response;
 
             try
             {
@@ -232,8 +227,7 @@ namespace PagosGranChapur.API.Controllers
             }
             catch (Exception ex)
             {
-                response.IsSuccess = false;
-                response.InternalError = ex.Message;
+                response = ResponseConverter.ToExceptionResponse<bool>(ex);
             }
 
             return Ok(response);
@@ -248,27 +242,25 @@ namespace PagosGranChapur.API.Controllers
         [Authorize(Roles = "Administrator")]        
         public async Task<IHttpActionResult> Delete(int userId)
         {
-            var response = new Response<bool>();
+            Response<bool> response;
 
             try
             {
                 if (UserId == 0) return BadRequest();
 
                 if (userId == 0)
-                    throw new Exception("El identificador del usuario es obligatorio para eliminar los datos");
+                    throw new PagosChapurException("El identificador del usuario es obligatorio para eliminar los datos");
 
                 response = await _userService.DeleteUser(userId);
 
             }
             catch (Exception ex)
             {
-                response.IsSuccess = false;
-                response.InternalError = ex.Message;
+                response = ResponseConverter.ToExceptionResponse<bool>(ex);
             }
 
             return Ok(response);
         }
-
  
     }
 }

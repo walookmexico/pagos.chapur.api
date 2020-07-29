@@ -1,6 +1,7 @@
 ﻿using PagosGranChapur.Data.Infrastructure;
 using PagosGranChapur.Entities;
 using PagosGranChapur.Entities.Enums;
+using PagosGranChapur.Entities.Helpers;
 using PagosGranChapur.Entities.Request;
 using PagosGranChapur.Entities.Responses;
 using PagosGranChapur.Repositories;
@@ -26,10 +27,11 @@ namespace PagosGranChapur.Services
         Task<Response<bool>> UpdatePasword(int userId, UpdatePasswordRequest request);
     }
 
-    public class UserService: IUserService
+    public class UserService : IUserService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _userRepository;
+        private const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
         public UserService(IUnitOfWork unitOfWork, IUserRepository userRepository ) {
 
@@ -56,7 +58,7 @@ namespace PagosGranChapur.Services
                     var user = _userRepository.Get(x => x.UserName == username && x.Password == encryptPassword);
 
                     if (user == null)
-                        throw new Exception("No se encontró usuario con los datos proporcionados");
+                        throw new PagosChapurException("No se encontró usuario con los datos proporcionados");
 
 
                     response.IsSuccess = true;
@@ -72,8 +74,7 @@ namespace PagosGranChapur.Services
                 }
                 catch (Exception ex)
                 {
-                    response.IsSuccess = false;
-                    response.Messages = "Problemas al validar el usuario: ";
+                    ResponseConverter.SetErrorResponse(response, "Problemas al validar el usuario: ");
                     response.InternalError = ex.Message;
 
                 }
@@ -111,20 +112,13 @@ namespace PagosGranChapur.Services
                     _userRepository.Add(user);
                     _unitOfWork.Commit();
 
-                    response = new Response<User>
-                    {
-                        Data = user,
-                        IsSuccess = true,
-                        Messages = "Usuario creado correctamente"
-                    };
-
+                    response.Data = user;
+                    ResponseConverter.SetSuccessResponse(response, "Usuario creado correctamente");
                 }
                 catch (Exception ex)
                 {
-                    response.IsSuccess = false;
-                    response.Messages = "Problemas al validar el usuario";
+                    ResponseConverter.SetErrorResponse(response, "Problemas al validar el usuario");
                     response.InternalError = ex.Message;
-
                 }
 
                 return response;
@@ -148,7 +142,8 @@ namespace PagosGranChapur.Services
                 {
                     var user = _userRepository.GetById(request.Id);
 
-                    if (user == null) throw new Exception("Usuario no encontrado dentro de la based de datos");
+                    if (user == null) 
+                        throw new PagosChapurException("Usuario no encontrado dentro de la based de datos");
 
                     user.FullName = request.FullName;
                     user.RolId = request.RolId;
@@ -159,20 +154,13 @@ namespace PagosGranChapur.Services
                     _userRepository.Update(user);
                     _unitOfWork.Commit();
 
-                    response = new Response<User>
-                    {
-                        Data = user,
-                        IsSuccess = true,
-                        Messages = "Datos del usuario actualizados correctamente"
-                    };
-
+                    response.Data = user;
+                    ResponseConverter.SetSuccessResponse(response, "Datos del usuario actualizados correctamente");
                 }
                 catch (Exception ex)
                 {
-                    response.IsSuccess = false;
-                    response.Messages = "Problemas al actualizar los datos del usuario";
+                    ResponseConverter.SetErrorResponse(response, "Problemas al actualizar los datos del usuario");
                     response.InternalError = ex.Message;
-
                 }
 
                 return response;
@@ -199,21 +187,18 @@ namespace PagosGranChapur.Services
                     await _userRepository.DeleteAsync(user);
                     _unitOfWork.Commit();
 
-                    response.Data     = response.IsSuccess = true;
-                    response.Messages = "Usuario eliminado correctamente de la base de datos";
+                    response.Data = true;
+                    ResponseConverter.SetSuccessResponse(response, "Usuario eliminado correctamente de la base de datos");
                 }
                 else {
-
-                    response.IsSuccess= response.Data = false;
-                    response.Messages                 = "Datos de usuario no encontrados";                    
+                    response.Data = false;
+                    ResponseConverter.SetErrorResponse(response, "Datos de usuario no encontrados");                    
                 }
                 
             }
             catch (Exception ex )
             {
-
-                response.IsSuccess     = false;
-                response.Messages      = "Error al intentar eliminar el usuario";
+                ResponseConverter.SetErrorResponse(response, "Error al intentar eliminar el usuario");
                 response.InternalError = ex.Message;
             }
 
@@ -231,15 +216,12 @@ namespace PagosGranChapur.Services
             try
             {
                 response.Data      = (await _userRepository.GetAllAsync()).ToList();
-                response.IsSuccess = true;
-                response.Messages  = "Listado de usuario obtenido d emanera exitosa";
+                ResponseConverter.SetSuccessResponse(response, "Listado de usuario obtenido d emanera exitosa");
             }
             catch (Exception)
             {
-                response.IsSuccess = false;
-                response.Messages  = "Error al obtener el listado de usuarios";
+                ResponseConverter.SetErrorResponse(response, "Error al obtener el listado de usuarios");
                 response.Data      = null;
-
             }
 
             return response;
@@ -260,15 +242,12 @@ namespace PagosGranChapur.Services
                 try
                 {
                     response.Data = _userRepository.GetById(userId);
-                    response.IsSuccess = true;
-                    response.Messages = "Listado de usuario obtenido d emanera exitosa";
+                    ResponseConverter.SetSuccessResponse(response, "Listado de usuario obtenido d emanera exitosa");
                 }
                 catch (Exception)
                 {
-                    response.IsSuccess = false;
-                    response.Messages = "Error al obtener el listado de usuarios";
+                    ResponseConverter.SetErrorResponse(response, "Error al obtener el listado de usuarios");
                     response.Data = null;
-
                 }
 
                 return response;
@@ -294,14 +273,12 @@ namespace PagosGranChapur.Services
 
                     if (user == null)
                     {
-                        response.Messages = $"El usuario con correo eléctronico { email } no ha sido encontrado, favor de corroborar la información";
-                        response.IsSuccess = false;
-
+                        ResponseConverter.SetErrorResponse(response, $"El usuario con correo eléctronico { email } no ha sido encontrado, favor de corroborar la información");
                         return response;
                     }
 
-                    var password = this.RandomString(18);
-                    user.Password = this.EncodeMD5(password);
+                    var password = RandomString(18);
+                    user.Password = EncodeMD5(password);
                     user.UpdateDate = DateTime.Now;
                     user.Email = user.Email.Trim();
                     user.UserName = user.UserName.Trim();
@@ -313,15 +290,12 @@ namespace PagosGranChapur.Services
                     bodyHTML = bodyHTML.Replace("[token]", password);
                     MailService.SendMessage(email, bodyHTML, "Password");
 
-                    response.IsSuccess = true;
-                    response.Messages = "Se han generado una contraseña temporal la cuál se mando al correo proporcionado ";
-
+                    ResponseConverter.SetSuccessResponse(response, "Se han generado una contraseña temporal la cuál se mando al correo proporcionado ");
                 }
                 catch (Exception ex)
                 {
                     response.Data = null;
-                    response.IsSuccess = false;
-                    response.Messages = ex.Message;
+                    ResponseConverter.SetErrorResponse(response, ex.Message);
                 }
 
                 return response;
@@ -342,33 +316,28 @@ namespace PagosGranChapur.Services
 
             try
             {
-                var encrypLastPassword = this.EncodeMD5(request.LastPassword); 
+                var encrypLastPassword = EncodeMD5(request.LastPassword); 
                 var user = await _userRepository.FindAsync(x => x.Id == userId && x.Password == encrypLastPassword);
 
                 if (user == null)
                 {
-                    response.Messages = $"El usuario no ha sido encontrado, favor de corroborar la información";
-                    response.IsSuccess = false;
-
+                    ResponseConverter.SetErrorResponse(response, $"El usuario no ha sido encontrado, favor de corroborar la información");
                     return response;
                 }
                                 
-                user.Password       = this.EncodeMD5(request.NewPassword);
+                user.Password       = EncodeMD5(request.NewPassword);
                 user.UpdateDate     = DateTime.Now;
                 user.ChangePassword = false;
 
                 _userRepository.Update(user);
                 _unitOfWork.SaveChanges();
 
-                response.IsSuccess = true;
-                response.Messages  = "Se actualizó correctamente la contraseña del usuario";
-
+                ResponseConverter.SetSuccessResponse(response, "Se actualizó correctamente la contraseña del usuario");
             }
             catch (Exception ex)
             {
                 response.Data       = false;
-                response.IsSuccess  = false;
-                response.Messages   = ex.Message;
+                ResponseConverter.SetErrorResponse(response, ex.Message);
             }
 
             return response;
@@ -385,30 +354,85 @@ namespace PagosGranChapur.Services
         /// </summary>
         /// <param name="passowd"></param>
         /// <returns></returns>
-        private string EncodeMD5(string passowd)
-        {                        
-            Byte[] originalBytes;
-            Byte[] encodedBytes;
+        private string EncodeMD5(string password)
+        {
+            byte[] originalBytes;
+            byte[] encodedBytes;
             MD5 md5;
-                        
-            md5           = new MD5CryptoServiceProvider();
-            originalBytes = ASCIIEncoding.Default.GetBytes(passowd);
-            encodedBytes  = md5.ComputeHash(originalBytes);
-                    
+
+            md5 = MD5.Create();
+            ASCIIEncoding encoding = new ASCIIEncoding();
+            StringBuilder sb = new StringBuilder();
+            originalBytes = encoding.GetBytes(password);
+            encodedBytes = md5.ComputeHash(originalBytes);
+            for (int i = 0; i < encodedBytes.Length; i++)
+            {
+                sb.AppendFormat("{0:x2}", encodedBytes[i]);
+            }
+
+            string encoded = sb.ToString();
+            string encoded2 = AnotherEncodeMD5(password);
+            if(encoded == encoded2)
+            {
+                Console.WriteLine("Enconded are equals");
+            } else
+            {
+                Console.WriteLine("Enconded are differents");
+            }
+
+            return encoded;
+        }
+
+        private string AnotherEncodeMD5(string password)
+        {
+            byte[] originalBytes;
+            byte[] encodedBytes;
+            MD5 md5;
+
+            md5 = new MD5CryptoServiceProvider();
+            originalBytes = Encoding.Default.GetBytes(password);
+            encodedBytes = md5.ComputeHash(originalBytes);
+
             return BitConverter.ToString(encodedBytes);
         }
 
-        /// <summary>
-        /// Create password ramdom
-        /// </summary>
-        /// <param name="length"></param>
-        /// <returns></returns>
-        public string RandomString(int length)
+            /// <summary>
+            /// Create password ramdom
+            /// </summary>
+            /// <param name="length"></param>
+            /// <returns></returns>
+            public string AnotherRandomString(int length)
         {
             Random random = new Random();
-
-            const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
             return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        public string RandomString(int length)
+        {
+            StringBuilder res = new StringBuilder();
+            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            {
+                byte[] uintBuffer = new byte[sizeof(uint)];
+
+                while (length-- > 0)
+                {
+                    rng.GetBytes(uintBuffer);
+                    uint num = BitConverter.ToUInt32(uintBuffer, 0);
+                    res.Append(chars[(int)(num % (uint)chars.Length)]);
+                }
+            }
+
+            string randomString = res.ToString();
+            string randomString2 = AnotherRandomString(length);
+            if (randomString == randomString2)
+            {
+                Console.WriteLine("RandomString are equals");
+            }
+            else
+            {
+                Console.WriteLine("RandomString are differents");
+            }
+            return randomString;
         }
 
         #endregion

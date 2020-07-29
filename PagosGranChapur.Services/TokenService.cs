@@ -1,4 +1,5 @@
-﻿using PagosGranChapur.Entities.Request;
+﻿using PagosGranChapur.Entities.Helpers;
+using PagosGranChapur.Entities.Request;
 using PagosGranChapur.Entities.Responses;
 using PagosGranChapur.Entities.WebServerRequest;
 using PagosGranChapur.Entities.WebServerResponses;
@@ -43,18 +44,16 @@ namespace PagosGranChapur.Services
                                 
                 if (tokenResponse != null && tokenResponse.Estatus == 0)
                 {
-                    response.IsSuccess = true;
-                    response.Messages  = "Token generado correctamente";
+                    ResponseConverter.SetSuccessResponse(response, "Token generado correctamente");
                     tokenResponse.CorreoElectronico = request.Email;
                     response.Data      = tokenResponse;
 
                 } else {
 
-                    response.Messages  = "Error al generar el token";
-                    response.IsSuccess = false;
+                    ResponseConverter.SetErrorResponse(response, "Error al generar el token");
 
                     if (tokenResponse == null) {
-                        throw new Exception("Error al conectarse con el servicio en CHAPUR");
+                        throw new PagosChapurException("Error al conectarse con el servicio en CHAPUR");
                     }
 
                     if (tokenResponse.Token != null && !tokenResponse.Equals(""))
@@ -66,8 +65,7 @@ namespace PagosGranChapur.Services
 
                             tokenResponse.Telefono          = null;
                             tokenResponse.CorreoElectronico = request.Email;
-                            response.Messages               = "Se generó corretamente y fue enviado al correo";
-                            response.IsSuccess              = true;
+                            ResponseConverter.SetSuccessResponse(response, "Se generó corretamente y fue enviado al correo");
                         }
                     }      
 
@@ -76,8 +74,7 @@ namespace PagosGranChapur.Services
             }
             catch (Exception ex)
             {
-                response.IsSuccess     = false;
-                response.Messages      = "Problemas al generar el Token";
+                ResponseConverter.SetErrorResponse(response, "Problemas al generar el Token");
                 response.InternalError = ex.Message;
             }
 
