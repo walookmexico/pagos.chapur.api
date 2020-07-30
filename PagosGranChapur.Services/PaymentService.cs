@@ -55,23 +55,18 @@ namespace PagosGranChapur.Services
         /// <returns>Response<PaymentWSResponse></returns>
         public async Task<Response<PaymentWSResponse>> ApplyPayment(SaveOrderPaymentRequest request, string apiUrl, string baseURL)
         {
-            var response    = new Response<PaymentWSResponse>();
-            bool success = true;
+            Response<PaymentWSResponse> response;
 
             try
             {
                 //VALIDAR SI LA ORDEN DE COMPRA YA TIENE UNA TRANSACCION ASIGNADA
                 response = await GetResponseValidateExistTransaction(request.IdPurchaseOrder, request.Amount);
 
-                if (response != null)
+                if (response == null) 
                 {
-                    if(response.Messages != null)
-                    {
-                        success = false;
-                    }
+                    response = await SavePurchaseOrder(response, request, apiUrl, baseURL);
                 }
-
-                if(success == true)
+                else if(response.Messages == null)
                 {
                     response = await SavePurchaseOrder(response, request, apiUrl, baseURL);
                 }
@@ -79,12 +74,12 @@ namespace PagosGranChapur.Services
             catch (System.Net.Http.HttpRequestException exHttpRequest)  //EXCEPCIÓN DE CONEXIÓN CON EL SERVIDOR DE SERVICIOS DE CHAPUR
             {
                 await SaveLog(request, -101, "Error al realizar conexión con los servicios de GRAN CAHPUR:" + exHttpRequest.Message);
-
+                response = new Response<PaymentWSResponse>();
                 SetErrorPurchaseOrder(response, exHttpRequest.Message);
             }
             catch (Exception ex) //EXCEPCIÓN DE TODOS LOS TIPOS POSIBLES DE ERRORES
             {
-
+                response = new Response<PaymentWSResponse>();
                 SetErrorPurchaseOrder(response, ex);
 
                 await SaveLog(request, -102, "Error al ejecutar el pago, favor de intentar más tarde:" + response.InternalError);
@@ -98,7 +93,7 @@ namespace PagosGranChapur.Services
         {
             var response = new Response<PaymentWSResponse>();
 
-            var isExistTransactions = await ValidateExistTransaction(idPurchaseOrder, amount);
+            var isExistTransactions = await ValidateExistTransaction(idPurchaseOrder);
 
             if (isExistTransactions != null)
             {
@@ -183,7 +178,7 @@ namespace PagosGranChapur.Services
             
         }
 
-        private void SetErrorPurchaseOrder(Response<PaymentWSResponse> response, String message)
+        private void SetErrorPurchaseOrder(Response<PaymentWSResponse> response, string message)
         {
             ResponseConverter.SetErrorResponse(response, "Error al realizar conexión con tiendas CHAPUR, favor de intentar más tarde");
             response.InternalError = message;
@@ -351,50 +346,14 @@ namespace PagosGranChapur.Services
 
             return result;
         }
-
-        /// <summary>
-        /// Registra la transaccion cuando es declinada por las reglas de PIORPO
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        private async Task SaveTransaction(SavePaymentRequest request, string message)
-        {
-
-            var transaction = new Transaction
-            {
-                NameCreditCard  = request.NameCreditCard,
-                UserId          = 0,
-                PlatformId      = request.PlatformId > 0 ? request.PlatformId : 0,
-                Amount          = decimal.Parse(request.Amount.ToString()),
-                CreateDate      = DateTime.Now,
-                PurchaseOrderId = request.IdPurchaseOrder,
-                StoreId         = request.IdStore > 0 ? request.IdStore : 0,
-                Email           = request.Email
-            };
-
-            var logTransaction = new LogTransaction
-            {
-                DateApply       = DateTime.Now,
-                MessageResponse = message,
-                PurchaseOrderID = transaction.PurchaseOrderId,
-                Status          = -103,
-                TransactionId   = transaction.Id,
-                PlatformId      = transaction.PlatformId
-            };
-
-            await _transactionRepository.AddAsync(transaction);
-            await _logTransactionRepository.AddAsync(logTransaction);
-            await _unitOfWork.SaveChangesAsync();
-            
-        }
-
+        
         /// <summary>
         /// Validar si la transacción ya fue ejecutada y guardada en la base de datos
         /// </summary>
         /// <param name="purchaseOrderId"></param>
         /// <param name="total"></param>
         /// <returns></returns>
-        private async Task<Transaction> ValidateExistTransaction(string purchaseOrderId, decimal total)
+        private async Task<Transaction> ValidateExistTransaction(string purchaseOrderId)
         {
             try
             {

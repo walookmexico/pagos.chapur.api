@@ -56,17 +56,14 @@ namespace PagosGranChapur.Services
                         throw new PagosChapurException("Error al conectarse con el servicio en CHAPUR");
                     }
 
-                    if (tokenResponse.Token != null && !tokenResponse.Equals(""))
+                    if (tokenResponse.Token != null && !tokenResponse.Equals("") && request.Email != "")
                     {
-                        if (request.Email != "")
-                        {
                             bodyHTML = bodyHTML.Replace("[token]", tokenResponse.Token);
                             MailService.SendMessage(request.Email, bodyHTML,"Token");
 
                             tokenResponse.Telefono          = null;
                             tokenResponse.CorreoElectronico = request.Email;
                             ResponseConverter.SetSuccessResponse(response, "Se generó corretamente y fue enviado al correo");
-                        }
                     }      
 
                     response.Data      = tokenResponse;

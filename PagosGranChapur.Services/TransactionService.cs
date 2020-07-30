@@ -64,10 +64,10 @@ namespace PagosGranChapur.Services
                     var data = _transactionRepository.GetMany(t => t.CreateDate >= start
                                                                             && t.CreateDate <= end);
 
-                    if (platformId.Where(x => x > 0).Count() > 0)
+                    if (ArrayIsValid(platformId))
                         data = data.Where(t => platformId.Contains(t.PlatformId)).ToList();
 
-                    if (storeId.Where(x => x > 0).Count() > 0)
+                    if (ArrayIsValid(storeId))
                         data = data.Where(t => storeId.Contains(t.StoreId)).ToList();
 
 
@@ -106,7 +106,7 @@ namespace PagosGranChapur.Services
 
                 var data = await _logTransactionRepository.FindAllAsync(t => t.DateApply >= start && t.DateApply <= end);
 
-                if (platformId.Where(x => x > 0).Count() > 0)                
+                if (ArrayIsValid(platformId))                
                     data = data.Where(t => platformId.Contains(t.PlatformId)).ToList();
 
                 response.Data      = data?.ToList();
@@ -119,6 +119,11 @@ namespace PagosGranChapur.Services
             }
 
             return response;
+        }
+
+        private bool ArrayIsValid(int[] items)
+        {
+            return items.Any(x => x > 0);
         }
         
         /// <summary>
@@ -136,44 +141,11 @@ namespace PagosGranChapur.Services
             try
             {
                 var data =  _transactionRepository.GetAll()
-                                                       .ToList()
                                                        .Where(t => (t.CreateDate.Date >= stardDate && t.CreateDate.Date <= endDate)
                                                                     && (t.CashOperationId == null || t.CashOperationId == 0)
                                                                     && t.AutorizationId != null);
-                                                                         
 
-                foreach (var t in data) {
-
-                    var request = new EstatusCompraWSRequest
-                    {
-                        IdAutorizacion = int.Parse(t.AutorizationId.ToString()),
-                        IdTienda       = t.StoreId
-                    };
-
-                    var statusPurchaseOrder = await RequestService.Post<EstatusCompraWSRequest, EstatusCompraWSResponse>(apiUrl, baseURL, request);
-
-                    t.StatusTransaction = statusPurchaseOrder.Estatus;
-
-                    if (statusPurchaseOrder.IdOperacionCaja > 0)
-                    {
-                        t.CashOperationId   = statusPurchaseOrder.IdOperacionCaja;
-                        t.ValidationDate    = DateTime.Now;                       
-
-                        if(statusPurchaseOrder.Estatus == 1)
-                            t.StatusPiorpi    = (int)EnumPiorpi.Correcto;
-                    }
-                    else
-                    {
-                        t.ValidationDate = DateTime.Now;
-                    }
-
-                    _transactionRepository.Update(t);
-                }
-
-                _unitOfWork.SaveChanges();
-
-                response.Data      = data?.ToList();
-                ResponseConverter.SetSuccessResponse(response, "Datos obtenidos correctaente");
+                await SetDataTransaction(data, response, apiUrl, baseURL);
             }
             catch (System.Net.Http.HttpRequestException httpEx)
             {
@@ -188,6 +160,42 @@ namespace PagosGranChapur.Services
 
             return response;
 
+        }
+
+        private async Task SetDataTransaction(IEnumerable<Transaction> data, Response<List<Transaction>> response, string apiUrl, string baseURL)
+        {
+            foreach (var t in data)
+            {
+                var request = new EstatusCompraWSRequest
+                {
+                    IdAutorizacion = int.Parse(t.AutorizationId.ToString()),
+                    IdTienda = t.StoreId
+                };
+
+                var statusPurchaseOrder = await RequestService.Post<EstatusCompraWSRequest, EstatusCompraWSResponse>(apiUrl, baseURL, request);
+
+                t.StatusTransaction = statusPurchaseOrder.Estatus;
+
+                if (statusPurchaseOrder.IdOperacionCaja > 0)
+                {
+                    t.CashOperationId = statusPurchaseOrder.IdOperacionCaja;
+                    t.ValidationDate = DateTime.Now;
+
+                    if (statusPurchaseOrder.Estatus == 1)
+                        t.StatusPiorpi = (int)EnumPiorpi.Correcto;
+                }
+                else
+                {
+                    t.ValidationDate = DateTime.Now;
+                }
+
+                _transactionRepository.Update(t);
+            }
+
+            _unitOfWork.SaveChanges();
+
+            response.Data = data?.ToList();
+            ResponseConverter.SetSuccessResponse(response, "Datos obtenidos correctamente");
         }
 
         /// <summary>
@@ -205,38 +213,7 @@ namespace PagosGranChapur.Services
             {
                 var data = await _transactionRepository.FindAllAsync(t => (t.CashOperationId == null || t.CashOperationId == 0) && t.AutorizationId != null);
 
-                foreach (var t in data)
-                {
-                    var request = new EstatusCompraWSRequest
-                    {
-                        IdAutorizacion = int.Parse(t.AutorizationId.ToString()),
-                        IdTienda = t.StoreId
-                    };
-
-                    var statusPurchaseOrder = await RequestService.Post<EstatusCompraWSRequest, EstatusCompraWSResponse>(apiUrl, baseURL, request);
-
-                    t.StatusTransaction = statusPurchaseOrder.Estatus;
-
-                    if (statusPurchaseOrder.IdOperacionCaja > 0)
-                    {
-                        t.CashOperationId = statusPurchaseOrder.IdOperacionCaja;
-                        t.ValidationDate = DateTime.Now;
-
-                        if (statusPurchaseOrder.Estatus == 1)
-                            t.StatusPiorpi = (int)EnumPiorpi.Correcto;
-                    }
-                    else
-                    {
-                        t.ValidationDate = DateTime.Now;
-                    }
-
-                    _transactionRepository.Update(t);
-                }
-
-                _unitOfWork.SaveChanges();
-
-                response.Data = data?.ToList();
-                ResponseConverter.SetSuccessResponse(response, "Datos obtenidos correctaente");
+                await SetDataTransaction(data, response, apiUrl, baseURL);
             }
             catch (Exception ex)
             {
@@ -259,7 +236,7 @@ namespace PagosGranChapur.Services
                     var storeId = 1;
                     var sellByDay = 1;
                     var addDays = 1;
-                    var descriptionStore = "E-COMMERCE";
+                    string descriptionStore;
                     var limitSellByDay = 10;
 
                     Random rnd = new Random();
@@ -282,9 +259,6 @@ namespace PagosGranChapur.Services
 
                         }
 
-                        float division = i / 3F;
-                        var isError = unchecked(division == (int)division);
-
                         var transaction = new Transaction
                         {
                             UserId = rnd.Next(1, 40000),
@@ -293,7 +267,6 @@ namespace PagosGranChapur.Services
                             CreateDate = DateTime.Today.AddDays(addDays),
                             Email = "carga@integrait.com.mx",
                             NameCreditCard = "CARGA INICIAL",
-                            //PurchaseOrderId = rnd.Next(1, 6000),
                             StoreId = rnd.Next(1, 3),
                             PlatformId = storeId,
                             DecriptionPlatform = descriptionStore,

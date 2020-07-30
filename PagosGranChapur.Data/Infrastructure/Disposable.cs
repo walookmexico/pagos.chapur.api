@@ -12,7 +12,7 @@ namespace PagosGranChapur.Data.Infrastructure
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!isDisposed && disposing)
             {

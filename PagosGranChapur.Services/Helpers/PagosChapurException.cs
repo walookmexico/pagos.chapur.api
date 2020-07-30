@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace PagosGranChapur.Entities.Helpers
 {
     [Serializable]
-    public class PagosChapurException : Exception
+    public sealed class PagosChapurException : Exception
     {
         public PagosChapurException()
         {
@@ -17,6 +18,12 @@ namespace PagosGranChapur.Entities.Helpers
         public PagosChapurException(string message, Exception inner)
             : base(message, inner)
         {
+        }
+
+        private PagosChapurException(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
+        {
+            
         }
     }
 }
