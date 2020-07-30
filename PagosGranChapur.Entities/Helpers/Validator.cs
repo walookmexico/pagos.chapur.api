@@ -5,6 +5,7 @@ namespace PagosGranChapur.Entities.Helpers
 {
     public class Validator
     {
+        private Validator() { }
 
         public static string ValidateDates(DateTime? startDate, DateTime? endDate)
         {

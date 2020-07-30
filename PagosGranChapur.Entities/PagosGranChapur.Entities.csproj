@@ -56,7 +56,6 @@
     <Compile Include="Helpers\CryptoMessage.cs" />
     <Compile Include="Helpers\DateFormatConverter .cs" />
     <Compile Include="Helpers\ErrorHandler.cs" />
-    <Compile Include="Helpers\ValidationPiorpiException.cs" />
     <Compile Include="Helpers\Validator.cs" />
     <Compile Include="LogTransaction.cs" />
     <Compile Include="Platform.cs" />
