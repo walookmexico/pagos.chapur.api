@@ -16,7 +16,8 @@ namespace PagosGranChapur.Services
 
     public class TokenService: ITokenService
     {
-        public TokenService() { }
+
+        public TokenService() {}
 
         #region INTERFACE METHODS
 
@@ -58,12 +59,12 @@ namespace PagosGranChapur.Services
 
                     if (tokenResponse.Token != null && !tokenResponse.Equals("") && request.Email != "")
                     {
-                            bodyHTML = bodyHTML.Replace("[token]", tokenResponse.Token);
-                            MailService.SendMessage(request.Email, bodyHTML,"Token");
+                        bodyHTML = bodyHTML.Replace("[token]", tokenResponse.Token);
+                        MailService.SendMessage(request.Email, bodyHTML,"Token");
 
-                            tokenResponse.Telefono          = null;
-                            tokenResponse.CorreoElectronico = request.Email;
-                            ResponseConverter.SetSuccessResponse(response, "Se generó corretamente y fue enviado al correo");
+                        tokenResponse.Telefono          = null;
+                        tokenResponse.CorreoElectronico = request.Email;
+                        ResponseConverter.SetSuccessResponse(response, "Se generó corretamente y fue enviado al correo");
                     }      
 
                     response.Data      = tokenResponse;

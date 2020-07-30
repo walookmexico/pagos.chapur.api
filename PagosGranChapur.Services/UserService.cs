@@ -360,35 +360,6 @@ namespace PagosGranChapur.Services
             byte[] encodedBytes;
             MD5 md5;
 
-            md5 = MD5.Create();
-            ASCIIEncoding encoding = new ASCIIEncoding();
-            StringBuilder sb = new StringBuilder();
-            originalBytes = encoding.GetBytes(password);
-            encodedBytes = md5.ComputeHash(originalBytes);
-            for (int i = 0; i < encodedBytes.Length; i++)
-            {
-                sb.AppendFormat("{0:x2}", encodedBytes[i]);
-            }
-
-            string encoded = sb.ToString();
-            string encoded2 = AnotherEncodeMD5(password);
-            if(encoded == encoded2)
-            {
-                Console.WriteLine("Enconded are equals");
-            } else
-            {
-                Console.WriteLine("Enconded are differents");
-            }
-
-            return encoded;
-        }
-
-        private string AnotherEncodeMD5(string password)
-        {
-            byte[] originalBytes;
-            byte[] encodedBytes;
-            MD5 md5;
-
             md5 = new MD5CryptoServiceProvider();
             originalBytes = Encoding.Default.GetBytes(password);
             encodedBytes = md5.ComputeHash(originalBytes);
@@ -396,17 +367,11 @@ namespace PagosGranChapur.Services
             return BitConverter.ToString(encodedBytes);
         }
 
-            /// <summary>
-            /// Create password ramdom
-            /// </summary>
-            /// <param name="length"></param>
-            /// <returns></returns>
-            public string AnotherRandomString(int length)
-        {
-            Random random = new Random();
-            return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
-        }
-
+        /// <summary>
+        /// Create password ramdom
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
         public string RandomString(int length)
         {
             StringBuilder res = new StringBuilder();
@@ -422,17 +387,7 @@ namespace PagosGranChapur.Services
                 }
             }
 
-            string randomString = res.ToString();
-            string randomString2 = AnotherRandomString(length);
-            if (randomString == randomString2)
-            {
-                Console.WriteLine("RandomString are equals");
-            }
-            else
-            {
-                Console.WriteLine("RandomString are differents");
-            }
-            return randomString;
+            return res.ToString();
         }
 
         #endregion
