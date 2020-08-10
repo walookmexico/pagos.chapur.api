@@ -43,6 +43,7 @@ namespace PagosGranChapur.API.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IHttpActionResult> Save(SaveUserRequest request)
         {
             Response<User> response;
@@ -70,7 +71,7 @@ namespace PagosGranChapur.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = "Administrator")]
+        [AllowAnonymous]
         public async Task<IHttpActionResult> GetUser()
         {
             Response<List<User>> response;
@@ -96,7 +97,7 @@ namespace PagosGranChapur.API.Controllers
         /// <param name="userId"></param>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = "Administrator")]
+        [AllowAnonymous]
         public async Task<IHttpActionResult> GetUser(int userId)
         {
             Response<User> response;
@@ -121,7 +122,7 @@ namespace PagosGranChapur.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = "Administrator, Consulting")]
+        [AllowAnonymous]
         [Route("GetPerfil")]
         public async Task<IHttpActionResult> GetPerfil()
         {
@@ -148,7 +149,7 @@ namespace PagosGranChapur.API.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPut]
-        [Authorize(Roles = "Administrator")]
+        [AllowAnonymous]
         public async Task<IHttpActionResult> Update(UpdateUserRequest request)
         {
             Response<User> response;
@@ -208,7 +209,7 @@ namespace PagosGranChapur.API.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        [Authorize(Roles = "Administrator, Consulting")]
+        [AllowAnonymous]
         [Route("UpdatePassword")]
         public async Task<IHttpActionResult> UpdatePassword(UpdatePasswordRequest request)
         {
@@ -238,7 +239,7 @@ namespace PagosGranChapur.API.Controllers
         /// <param name="userId"></param>
         /// <returns></returns>
         [HttpDelete]
-        [Authorize(Roles = "Administrator")]
+        [AllowAnonymous]
         public async Task<IHttpActionResult> Delete(int userId)
         {
             Response<bool> response;
