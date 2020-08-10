@@ -21,7 +21,7 @@ namespace PagosGranChapur.API.Controllers
         }
 
         /// <summary>
-        /// Validar la sesion del usuario 
+        /// Validar la sesion del usuario
         /// </summary>
         /// <returns></returns>
         [Route("ValidateSession")]
@@ -43,7 +43,6 @@ namespace PagosGranChapur.API.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        [Authorize(Roles = "Administrator")]        
         public async Task<IHttpActionResult> Save(SaveUserRequest request)
         {
             Response<User> response;
@@ -65,13 +64,13 @@ namespace PagosGranChapur.API.Controllers
 
             return Ok(response);
         }
-        
+
         /// <summary>
         /// API para obtener los datos de todos los usuarios registrados
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = "Administrator")]        
+        [Authorize(Roles = "Administrator")]
         public async Task<IHttpActionResult> GetUser()
         {
             Response<List<User>> response;
@@ -97,7 +96,7 @@ namespace PagosGranChapur.API.Controllers
         /// <param name="userId"></param>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = "Administrator")]        
+        [Authorize(Roles = "Administrator")]
         public async Task<IHttpActionResult> GetUser(int userId)
         {
             Response<User> response;
@@ -106,7 +105,7 @@ namespace PagosGranChapur.API.Controllers
             {
                 if (UserId == 0) return BadRequest();
 
-                response = await _userService.GetById(userId);               
+                response = await _userService.GetById(userId);
             }
             catch (Exception ex)
             {
@@ -114,14 +113,14 @@ namespace PagosGranChapur.API.Controllers
             }
 
             return Ok(response);
-           
+
         }
 
         /// <summary>
         /// API para obtener los datos del suuario
         /// </summary>
         /// <returns></returns>
-        [HttpGet]        
+        [HttpGet]
         [Authorize(Roles = "Administrator, Consulting")]
         [Route("GetPerfil")]
         public async Task<IHttpActionResult> GetPerfil()
@@ -142,14 +141,14 @@ namespace PagosGranChapur.API.Controllers
             return Ok(response);
 
         }
-        
+
         /// <summary>
         /// API que permite actualizar los datos de un usuario
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPut]
-        [Authorize(Roles = "Administrator")]        
+        [Authorize(Roles = "Administrator")]
         public async Task<IHttpActionResult> Update(UpdateUserRequest request)
         {
             Response<User> response;
@@ -162,7 +161,7 @@ namespace PagosGranChapur.API.Controllers
 
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                               
+
                 response = await _userService.UpdateUser(request);
 
             }
@@ -222,7 +221,7 @@ namespace PagosGranChapur.API.Controllers
 
                 if (UserId == 0)
                     return BadRequest();
-                
+
                 response = await _userService.UpdatePasword(UserId, request);
             }
             catch (Exception ex)
@@ -239,7 +238,7 @@ namespace PagosGranChapur.API.Controllers
         /// <param name="userId"></param>
         /// <returns></returns>
         [HttpDelete]
-        [Authorize(Roles = "Administrator")]        
+        [Authorize(Roles = "Administrator")]
         public async Task<IHttpActionResult> Delete(int userId)
         {
             Response<bool> response;
@@ -261,6 +260,6 @@ namespace PagosGranChapur.API.Controllers
 
             return Ok(response);
         }
- 
+
     }
 }
