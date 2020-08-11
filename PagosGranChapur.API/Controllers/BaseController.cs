@@ -9,13 +9,13 @@ namespace PagosGranChapur.API.Controllers
         {
             get
             {
-                var claimId     = User.Identity.Name;
-                var claimResult = int.TryParse(claimId, out int userId);
+               // var claimId     = User.Identity.Name;
+               // var claimResult = int.TryParse(claimId, out int userId);
 
-                return claimResult ? userId : 0;
+                return 1;
             }
-        }      
+        }
     }
 
-    
+
 }
