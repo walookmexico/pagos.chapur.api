@@ -159,10 +159,19 @@ namespace PagosGranChapur.Services
            
             if (purchaseOrderResponse.Estatus > 0)
             {
+                try {
                 response = await SaveTransaction(purchaseOrderResponse, request, reglaPrp, errorPiorpi);
                 ResponseConverter.SetSuccessResponse(response, "Pago aplicado correctamente");
 
                 await AddCatalog(purchaseOrderResponse);
+                }
+                 catch (Exception ex) //EXCEPCIÓN MIA
+                {
+                response = new Response<PaymentWSResponse>();
+                SetErrorPurchaseOrder(response, ex);
+
+                await SaveLog(request, -102, "algo truena:" + response.InternalError);
+                }
             }
             else
             {
