@@ -62,11 +62,7 @@ namespace PagosGranChapur.Services
                 //VALIDAR SI LA ORDEN DE COMPRA YA TIENE UNA TRANSACCION ASIGNADA
                 response = await GetResponseValidateExistTransaction(request.IdPurchaseOrder, request.Amount);
 
-                if (response == null) 
-                {
-                    response = await SavePurchaseOrder(response, request, apiUrl, baseURL);
-                }
-                else if(response.Messages == null)
+                if (response.Messages == null)
                 {
                     response = await SavePurchaseOrder(response, request, apiUrl, baseURL);
                 }
@@ -364,8 +360,10 @@ namespace PagosGranChapur.Services
                 else
                     return null;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.StackTrace);
+                
                 return null;
             }
         }
