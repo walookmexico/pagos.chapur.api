@@ -140,7 +140,7 @@ namespace PagosGranChapur.Services
             //VALIDAR LA RESPUESTA DEL SERVICIO
             if (purchaseOrderResponse != null)
             {
-                await ValidateResponse(response, purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
+                response = await ValidateResponse(response, purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
             }
             else
             {
@@ -150,23 +150,23 @@ namespace PagosGranChapur.Services
             return response;
         }
 
-        private async Task ValidateResponse(Response<PaymentWSResponse> response, PaymentWSResponse purchaseOrderResponse, SavePaymentRequest request,  int reglaPrp, List<ValidacionPrp> errorPiorpi)
+        private async Task<Response<PaymentWSResponse>> ValidateResponse(Response<PaymentWSResponse> response, PaymentWSResponse purchaseOrderResponse, SavePaymentRequest request,  int reglaPrp, List<ValidacionPrp> errorPiorpi)
         {
-           
+
             if (purchaseOrderResponse.Estatus > 0)
             {
                 try {
-                response = await SaveTransaction(purchaseOrderResponse, request, reglaPrp, errorPiorpi);
-                ResponseConverter.SetSuccessResponse(response, "Pago aplicado correctamente");
+                    response = await SaveTransaction(purchaseOrderResponse, request, reglaPrp, errorPiorpi);
+                    ResponseConverter.SetSuccessResponse(response, "Pago aplicado correctamente");
 
-                await AddCatalog(purchaseOrderResponse);
+                    await AddCatalog(purchaseOrderResponse);
                 }
-                 catch (Exception ex) //EXCEPCIÓN MIA
+                catch (Exception ex) //EXCEPCIÓN MIA
                 {
-                response = new Response<PaymentWSResponse>();
-                SetErrorPurchaseOrder(response, ex);
+                    response = new Response<PaymentWSResponse>();
+                    SetErrorPurchaseOrder(response, ex);
 
-                await SaveLog(request, -102, "algo truena:" + response.InternalError);
+                    await SaveLog(request, -102, "algo truena:" + response.InternalError);
                 }
             }
             else
@@ -180,7 +180,8 @@ namespace PagosGranChapur.Services
 
                 await SaveLog(request, purchaseOrderResponse.Estatus.Value, purchaseOrderResponse.Mensaje);
             }
-            
+
+            return response;
         }
 
         private void SetErrorPurchaseOrder(Response<PaymentWSResponse> response, string message)
@@ -238,7 +239,7 @@ namespace PagosGranChapur.Services
                 //VALIDAR LA RESPUESTA DEL SERVICIO
                 if (purchaseOrderResponse != null)
                 {
-                    await ValidateResponse(response, purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
+                    response = await ValidateResponse(response, purchaseOrderResponse, request, dataService.ReglaPrp, errorPiorpi);
                 }
                 else
                 {
